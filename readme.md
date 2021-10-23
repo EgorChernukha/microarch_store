@@ -1,0 +1,1 @@
+Домашнее задание https://otus.ru/lessons/microservice-architecture
