@@ -10,7 +10,7 @@ https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/ # 
 Как запустить:
 ```shell
 make
-kubectl create namespace microarch-test
+kubectl apply -f ./conf/k8s/base/namespace.yml
 kubectl apply -f ./conf/k8s/base/.
 ```
 

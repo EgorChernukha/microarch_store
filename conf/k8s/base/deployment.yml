@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: store
-  namespace: microarch-test
+  namespace: otus
   labels:
     app: store
 spec:

@@ -1,8 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: store-ingress
-  namespace: microarch-test
+  name: store
+  namespace: otus
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
@@ -12,7 +12,7 @@ spec:
       paths:
       - backend:
           service:
-            name: store-service
+            name: store
             port:
               number: 8000
         pathType: Prefix
