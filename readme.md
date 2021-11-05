@@ -7,17 +7,29 @@ https://www.virtualbox.org/wiki/Downloads # virtualbox
 https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/ # minikube ingress
 ```
 
-Как запустить:
-```shell
-make
-kubectl apply -f ./conf/k8s/base/namespace.yml
-kubectl apply -f ./conf/k8s/base/.
-```
-
 Домашнее задание 1:
 ```shell
 ip=$(minikube ip) && curl -H 'Host: arch.homework' http://$ip/health
 # curl -H 'Host: arch.homework' http://192.168.99.100/health
+```
+
+Как запустить:
+```shell
+make
+kubectl apply -f ./conf/k8s/base/namespace.yaml
+kubectl apply -f ./conf/k8s/base/.
+```
+
+
+Домашнее задание 2:
+```shell
+# Установка mysql
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install mysql -f conf/helm/mysql/values.yaml bitnami/mysql --version 8.8.12
+
+# Запуск
+kubectl apply -f ./conf/k8s/base/namespace.yaml
+kubectl apply -f ./conf/k8s/base/.
 ```
 
 **hw2**:

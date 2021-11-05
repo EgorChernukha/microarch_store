@@ -23,6 +23,27 @@ spec:
       containers:
         - image: echernukha/store
           name: storecontainer
+          env:
+            - name: STORE_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: store-secret
+                  key: STORE_DB_HOST
+            - name: STORE_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: store-secret
+                  key: STORE_DB_NAME
+            - name: STORE_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: store-secret
+                  key: STORE_DB_USER
+            - name: STORE_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: store-secret
+                  key: STORE_DB_PASSWORD
           ports:
             - name: http
               containerPort: 8000
