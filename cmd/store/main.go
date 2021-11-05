@@ -7,12 +7,38 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
+
+	"store/pkg/store/infrastructure/mysql"
+)
+
+const (
+	appID      = "store"
+	apiTimeout = 15 * time.Second
 )
 
 func main() {
+	cnf, err := parseEnv()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	connector := mysql.NewConnector()
+	err = connector.MigrateUp(cnf.dsn(), cnf.MigrationsDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = connector.Open(cnf.dsn(), mysql.Config{
+		MaxConnections:     cnf.DBMaxConn,
+		ConnectionLifetime: time.Duration(cnf.DBConnectionLifetime) * time.Second,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 

@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
+
+	"store/pkg/store/infrastructure/mysql"
 )
 
 func parseEnv() (*config, error) {
@@ -22,4 +24,13 @@ type config struct {
 	DBConnectionLifetime int    `envconfig:"db_conn_lifetime" default:"0"`
 
 	MigrationsDir string `envconfig:"migrations_dir"`
+}
+
+func (c *config) dsn() mysql.DSN {
+	return mysql.DSN{
+		Host:     c.DBHost,
+		Database: c.DBName,
+		User:     c.DBUser,
+		Password: c.DBPassword,
+	}
 }

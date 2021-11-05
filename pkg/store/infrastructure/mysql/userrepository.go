@@ -1,19 +1,18 @@
 package mysql
 
 import (
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"mod/pkg/store/domain"
+	"store/pkg/store/domain"
 )
 
-func NewUserRepository(client *sqlx.DB) domain.UserRepository {
+func NewUserRepository(client Client) domain.UserRepository {
 	return &userRepository{client: client}
 }
 
 type userRepository struct {
-	client *sqlx.DB
+	client Client
 }
 
 func (u *userRepository) NewID() domain.UserID {

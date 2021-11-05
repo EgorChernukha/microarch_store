@@ -1,20 +1,19 @@
 package mysql
 
 import (
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"mod/pkg/store/app"
+	"store/pkg/store/app"
 )
 import _ "github.com/go-sql-driver/mysql"
 
-func NewUserQueryService(client *sqlx.DB) app.UserQueryService {
+func NewUserQueryService(client Client) app.UserQueryService {
 	return &userQueryService{client: client}
 }
 
 type userQueryService struct {
-	client *sqlx.DB
+	client Client
 }
 
 func (u userQueryService) FindUser(id uuid.UUID) (app.UserData, error) {

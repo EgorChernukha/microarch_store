@@ -18,7 +18,6 @@ services:
       STORE_DB_MAX_CONN: 5
     depends_on:
       - store-db-dev
-      - filestorage-dev
 
   store-db-dev:
     image: percona
