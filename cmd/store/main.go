@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"store/pkg/store/app"
+	"store/pkg/store/domain"
+	"store/pkg/store/infrastructure/transport"
 	"syscall"
 	"time"
 
@@ -39,13 +42,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	router := mux.NewRouter()
-	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
-
-	srv := &http.Server{
-		Addr:    ":8000",
-		Handler: router,
-	}
+	srv := createServer(connector.Client())
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -61,6 +58,24 @@ func main() {
 		log.Fatalf("Server Shutdown Failed:%+v", err)
 	}
 	log.Print("Server Exited Properly")
+}
+
+func createServer(client mysql.Client) *http.Server {
+	router := mux.NewRouter()
+	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
+
+	userRepository := mysql.NewUserRepository(client)
+	userDomainService := domain.NewUserService(userRepository)
+	userService := app.NewUserService(userDomainService)
+	userQueryService := mysql.NewUserQueryService(client)
+
+	server := transport.NewServer(router, userService, userQueryService)
+	server.Start()
+
+	return &http.Server{
+		Addr:    ":8000",
+		Handler: router,
+	}
 }
 
 func healthEndpoint(w http.ResponseWriter, r *http.Request) {
