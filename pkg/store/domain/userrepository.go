@@ -3,7 +3,8 @@ package domain
 import "errors"
 
 type UserRepository interface {
-	Store(user User) (UserID, error)
+	NewID() UserID
+	Store(user User) error
 	Remove(user User) error
 	FindOne(id UserID) (User, error)
 }

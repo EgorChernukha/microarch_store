@@ -1,6 +1,6 @@
 CREATE TABLE `user`
 (
-    `id`        MEDIUMINT    NOT NULL AUTO_INCREMENT,
+    `id`        BINARY(16)   NOT NULL,
     `login`     VARCHAR(255) NOT NULL,
     `firstname` VARCHAR(255) NOT NULL,
     `lastname`  VARCHAR(255) NOT NULL,

@@ -1,6 +1,8 @@
 package domain
 
-type UserID int
+import uuid "github.com/satori/go.uuid"
+
+type UserID uuid.UUID
 
 type User interface {
 	ID() UserID
@@ -52,8 +54,9 @@ func (u *user) Update(firstname, lastname, email, phone string) {
 	u.phone = phone
 }
 
-func NewUser(login, firstname, lastname, email, phone string) User {
+func NewUser(id UserID, login, firstname, lastname, email, phone string) User {
 	return &user{
+		id:        id,
 		login:     login,
 		firstname: firstname,
 		lastname:  lastname,

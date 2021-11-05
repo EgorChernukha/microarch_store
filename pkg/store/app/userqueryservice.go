@@ -1,7 +1,9 @@
 package app
 
+import uuid "github.com/satori/go.uuid"
+
 type UserData struct {
-	ID        int
+	ID        uuid.UUID
 	Username  string
 	Firstname string
 	Lastname  string
@@ -10,5 +12,5 @@ type UserData struct {
 }
 
 type UserQueryService interface {
-	FindUser(id int) (UserData, error)
+	FindUser(id uuid.UUID) (UserData, error)
 }

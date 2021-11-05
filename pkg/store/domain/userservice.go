@@ -17,8 +17,9 @@ type userService struct {
 }
 
 func (u *userService) AddUser(username, firstname, lastname, email, phone string) (UserID, error) {
-	user := NewUser(username, firstname, lastname, email, phone)
-	id, err := u.repository.Store(user)
+	id := u.repository.NewID()
+	user := NewUser(id, username, firstname, lastname, email, phone)
+	err := u.repository.Store(user)
 
 	return id, errors.Wrap(err, "failed to add new user")
 }
@@ -30,7 +31,7 @@ func (u *userService) UpdateUser(id UserID, firstname, lastname, email, phone st
 	}
 
 	user.Update(firstname, lastname, email, phone)
-	_, err = u.repository.Store(user)
+	err = u.repository.Store(user)
 
 	return errors.Wrap(err, "failed to update user")
 }

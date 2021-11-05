@@ -1,30 +1,37 @@
 package mysql
 
 import (
-	"database/sql"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
 
 	"mod/pkg/store/app"
 )
 import _ "github.com/go-sql-driver/mysql"
 
-func newUserQueryService(client *sql.DB) app.UserQueryService {
+func NewUserQueryService(client *sqlx.DB) app.UserQueryService {
 	return &userQueryService{client: client}
 }
 
 type userQueryService struct {
-	client *sql.DB
+	client *sqlx.DB
 }
 
-func (u userQueryService) FindUser(id int) (app.UserData, error) {
+func (u userQueryService) FindUser(id uuid.UUID) (app.UserData, error) {
 	const sqlQuery = `SELECT id, login, firstname, lastname, email, phone FROM user WHERE id = ?`
+	var sqlUser sqlxUser
 
-	userData := app.UserData{}
-
-	err := u.client.QueryRow(sqlQuery, id).Scan(&userData.ID, &userData.Username, &userData.Firstname, &userData.Lastname, &userData.Email, &userData.Phone)
+	err := u.client.Get(&sqlUser, sqlQuery, id)
 	if err != nil {
 		return app.UserData{}, errors.WithStack(err)
 	}
 
-	return userData, nil
+	return app.UserData{
+		ID:        uuid.UUID(sqlUser.id),
+		Username:  sqlUser.Login,
+		Firstname: sqlUser.Firstname,
+		Lastname:  sqlUser.Lastname,
+		Email:     sqlUser.Email,
+		Phone:     sqlUser.Phone,
+	}, nil
 }
