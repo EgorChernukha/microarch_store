@@ -48,8 +48,7 @@ paths:
       description: ID of user
       required: true
       schema:
-        type: integer
-        format: int64
+        type: string
     get:
       tags:
         - user
@@ -117,8 +116,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
         username:
           type: string
           maxLength: 256
