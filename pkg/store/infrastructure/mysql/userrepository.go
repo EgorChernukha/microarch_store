@@ -1,6 +1,8 @@
 package mysql
 
 import (
+	"database/sql"
+
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
@@ -26,7 +28,7 @@ func (u *userRepository) Store(user domain.User) error {
 	ON DUPLICATE KEY UPDATE firstname=VALUES(firstname), lastname=VALUES(lastname), email=VALUES(email), phone=VALUES(phone)`
 
 	sqlUser := sqlxUser{
-		id:        binaryUUID(user.ID()),
+		ID:        binaryUUID(user.ID()),
 		Login:     user.Login(),
 		Firstname: user.Firstname(),
 		Lastname:  user.Lastname(),
@@ -51,9 +53,11 @@ func (u *userRepository) FindOne(id domain.UserID) (domain.User, error) {
 	var sqlUser sqlxUser
 
 	err := u.client.Get(&sqlUser, sqlQuery, uuid.UUID(id).Bytes())
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return nil, errors.WithStack(domain.ErrUserNotFound)
+	} else if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return domain.NewUser(domain.UserID(sqlUser.id), sqlUser.Login, sqlUser.Firstname, sqlUser.Lastname, sqlUser.Email, sqlUser.Phone), nil
+	return domain.NewUser(domain.UserID(sqlUser.ID), sqlUser.Login, sqlUser.Firstname, sqlUser.Lastname, sqlUser.Email, sqlUser.Phone), nil
 }

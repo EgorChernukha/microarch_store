@@ -2,12 +2,13 @@ package mysql
 
 import (
 	"database/sql/driver"
+
 	uuid "github.com/satori/go.uuid"
 )
 
 type sqlxUser struct {
-	id        binaryUUID `db:"id"`
-	Login     string     `db:"title"`
+	ID        binaryUUID `db:"id"`
+	Login     string     `db:"login"`
 	Firstname string     `db:"firstname"`
 	Lastname  string     `db:"lastname"`
 	Email     string     `db:"email"`

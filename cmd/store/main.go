@@ -6,21 +6,20 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"store/pkg/store/app"
-	"store/pkg/store/domain"
-	"store/pkg/store/infrastructure/transport"
 	"syscall"
 	"time"
 
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 
+	"store/pkg/store/app"
+	"store/pkg/store/domain"
 	"store/pkg/store/infrastructure/mysql"
+	"store/pkg/store/infrastructure/transport"
 )
 
 const (
-	appID      = "store"
-	apiTimeout = 15 * time.Second
+	appID = "store"
 )
 
 func main() {
