@@ -3,11 +3,14 @@ kind: Service
 metadata:
   name: store
   namespace: otus
+  labels:
+    app: store
 spec:
   selector:
     app: store
   ports:
-  - protocol: TCP
+  - name: web
+    protocol: TCP
     port: 8000
     targetPort: http
   type: NodePort

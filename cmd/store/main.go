@@ -15,6 +15,7 @@ import (
 	"store/pkg/store/app"
 	"store/pkg/store/domain"
 	"store/pkg/store/infrastructure/mysql"
+	"store/pkg/store/infrastructure/prometheus"
 	"store/pkg/store/infrastructure/transport"
 )
 
@@ -41,7 +42,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	srv := createServer(connector.Client())
+	metricsHandler, err := prometheus.NewMetricsHandler(transport.NewEndpointLabelCollector())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	srv := createServer(connector.Client(), metricsHandler)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -59,9 +65,11 @@ func main() {
 	log.Print("Server Exited Properly")
 }
 
-func createServer(client mysql.Client) *http.Server {
+func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
+	metricsHandler.AddMetricsHandler(router, "/metrics")
+	metricsHandler.AddCommonMetricsMiddleware(router)
 
 	userRepository := mysql.NewUserRepository(client)
 	userDomainService := domain.NewUserService(userRepository)

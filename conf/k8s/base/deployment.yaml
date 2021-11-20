@@ -21,7 +21,7 @@ spec:
         app: store
     spec:
       containers:
-        - image: echernukha/store
+        - image: echernukha/store:latest
           name: storecontainer
           env:
             - name: STORE_DB_HOST

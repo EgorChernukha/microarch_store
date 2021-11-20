@@ -15,6 +15,11 @@ import (
 	"store/pkg/store/domain"
 )
 
+const (
+	createUserEndpoint = PathPrefix + "user"
+	specUserEndpoint   = PathPrefix + "user/{id}"
+)
+
 type Server interface {
 	Start()
 }
@@ -34,10 +39,10 @@ type server struct {
 }
 
 func (s *server) Start() {
-	s.router.HandleFunc("/api/v1/user", s.createUserEndpoint).Methods(http.MethodPost)
-	s.router.HandleFunc("/api/v1/user/{id}", s.removeUserEndpoint).Methods(http.MethodDelete)
-	s.router.HandleFunc("/api/v1/user/{id}", s.updateUserEndpoint).Methods(http.MethodPut)
-	s.router.HandleFunc("/api/v1/user/{id}", s.getUserEndpoint).Methods(http.MethodGet)
+	s.router.HandleFunc(createUserEndpoint, s.createUserEndpoint).Methods(http.MethodPost)
+	s.router.HandleFunc(specUserEndpoint, s.removeUserEndpoint).Methods(http.MethodDelete)
+	s.router.HandleFunc(specUserEndpoint, s.updateUserEndpoint).Methods(http.MethodPut)
+	s.router.HandleFunc(specUserEndpoint, s.getUserEndpoint).Methods(http.MethodGet)
 }
 
 func (s *server) createUserEndpoint(w http.ResponseWriter, r *http.Request) {
