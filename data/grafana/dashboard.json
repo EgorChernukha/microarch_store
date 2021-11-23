@@ -23,8 +23,8 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 9628,
   "graphTooltip": 0,
-  "id": 30,
-  "iteration": 1637412878937,
+  "id": 26,
+  "iteration": 1637682095397,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -96,7 +96,7 @@
       },
       "gridPos": {
         "h": 12,
-        "w": 12,
+        "w": 6,
         "x": 0,
         "y": 1
       },
@@ -177,9 +177,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
+        "h": 12,
+        "w": 5,
+        "x": 6,
         "y": 1
       },
       "id": 89,
@@ -264,12 +264,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 16,
-        "w": 12,
-        "x": 12,
-        "y": 9
+        "h": 12,
+        "w": 6,
+        "x": 11,
+        "y": 1
       },
-      "id": 78,
+      "id": 79,
       "options": {
         "legend": {
           "calcs": [],
@@ -283,29 +283,37 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.5, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
+          "expr": "histogram_quantile(0.5, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
           "interval": "",
-          "legendFormat": "q 0.5 {{method}} {{exported_endpoint}}",
+          "legendFormat": "0.5 quantile",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
+          "expr": "histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
           "hide": false,
           "interval": "",
-          "legendFormat": "q 0.95 {{method}} {{exported_endpoint}}",
+          "legendFormat": "0.95 quantile",
           "refId": "B"
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.99, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
+          "expr": "histogram_quantile(0.99, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
           "hide": false,
           "interval": "",
-          "legendFormat": "q 0.99 {{method}} {{exported_endpoint}}",
+          "legendFormat": "0.99 quantile",
           "refId": "C"
+        },
+        {
+          "exemplar": true,
+          "expr": "histogram_quantile(1.0, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\"}[$interval])) by (le))*1000",
+          "hide": true,
+          "interval": "",
+          "legendFormat": "max",
+          "refId": "D"
         }
       ],
-      "title": "Latency by endpoint",
+      "title": "Latency",
       "type": "timeseries"
     },
     {
@@ -360,11 +368,11 @@
       },
       "gridPos": {
         "h": 12,
-        "w": 12,
-        "x": 0,
-        "y": 13
+        "w": 6,
+        "x": 17,
+        "y": 1
       },
-      "id": 79,
+      "id": 78,
       "options": {
         "legend": {
           "calcs": [],
@@ -378,37 +386,29 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.5, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
+          "expr": "histogram_quantile(0.5, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
           "interval": "",
-          "legendFormat": "0.5 quantile",
+          "legendFormat": "q 0.5 {{method}} {{exported_endpoint}}",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
+          "expr": "histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
           "hide": false,
           "interval": "",
-          "legendFormat": "0.95 quantile",
+          "legendFormat": "q 0.95 {{method}} {{exported_endpoint}}",
           "refId": "B"
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.99, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
+          "expr": "histogram_quantile(0.99, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
           "hide": false,
           "interval": "",
-          "legendFormat": "0.99 quantile",
+          "legendFormat": "q 0.99 {{method}} {{exported_endpoint}}",
           "refId": "C"
-        },
-        {
-          "exemplar": true,
-          "expr": "histogram_quantile(1.0, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\"}[$interval])) by (le))*1000",
-          "hide": true,
-          "interval": "",
-          "legendFormat": "max",
-          "refId": "D"
         }
       ],
-      "title": "Latency",
+      "title": "Latency by endpoint",
       "type": "timeseries"
     },
     {
@@ -418,7 +418,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 13
       },
       "id": 72,
       "panels": [],
@@ -511,10 +511,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
+        "h": 6,
         "w": 8,
         "x": 0,
-        "y": 26
+        "y": 14
       },
       "id": 80,
       "options": {
@@ -624,10 +624,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
+        "h": 6,
         "w": 8,
         "x": 8,
-        "y": 26
+        "y": 14
       },
       "id": 81,
       "options": {
@@ -741,10 +741,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
+        "h": 6,
         "w": 8,
         "x": 16,
-        "y": 26
+        "y": 14
       },
       "id": 90,
       "options": {
@@ -792,7 +792,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 20
       },
       "id": 83,
       "panels": [],
@@ -811,7 +811,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 39
+        "y": 21
       },
       "hiddenSeries": false,
       "id": 85,
@@ -928,7 +928,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 39
+        "y": 21
       },
       "hiddenSeries": false,
       "id": 87,
