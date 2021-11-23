@@ -44,5 +44,10 @@ helm install nginx ingress-nginx/ingress-nginx -f ./conf/helm/ingress-nginx/valu
 
 # Запуск grafana. Перейти на http://localhost:9000(admin: prom-operator)
 kubectl port-forward service/prom-grafana 9000:80
+
+# В grafana необходимо импортировать dashboard из /data/grafana/dashboard.json
+
+# Запуск стресс-теста
+./data/test.sh
 # 
 ```
