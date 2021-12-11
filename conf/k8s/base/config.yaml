@@ -4,7 +4,18 @@ metadata:
   name: store-secret
 type: Opaque
 data:
-  STORE_DB_HOST: bXlzcWw=
+  STORE_DB_HOST: bXlzcWwtc3RvcmU=
   STORE_DB_NAME: c3RvcmU=
   STORE_DB_USER: c3RvcmU=
   STORE_DB_PASSWORD: Z0JlLW85ZE5GRg==
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: auth-secret
+type: Opaque
+data:
+  AUTH_DB_HOST: bXlzcWwtYXV0aA==
+  AUTH_DB_NAME: YXV0aA==
+  AUTH_DB_USER: YXV0aA==
+  AUTH_DB_PASSWORD: Z0JlLW85ZE5GRg==

@@ -51,3 +51,19 @@ kubectl port-forward service/prom-grafana 9000:80
 ./data/test.sh
 # 
 ```
+
+
+Домашнее задание 5:
+```shell
+# Настройка окружения
+kubectl apply -f ./conf/k8s/base/namespace.yaml
+kubens otus
+helm install prom prometheus-community/kube-prometheus-stack -f ./conf/helm/prometheus/values.yaml --atomic
+helm install nginx ingress-nginx/ingress-nginx -f ./conf/helm/ingress-nginx/values.yaml --atomic
+helm install mysql-auth -f conf/helm/mysql/authvalues.yaml bitnami/mysql --version 8.8.12
+helm install mysql-store -f conf/helm/mysql/storevalues.yaml bitnami/mysql --version 8.8.12
+
+kubectl apply -f ./conf/k8s/base/.
+
+
+```
