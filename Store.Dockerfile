@@ -9,8 +9,8 @@ RUN apt-get update && \
 ADD ./bin/store /app/bin/
 WORKDIR /app
 
-ADD ./data/mysql/migrations /data/mysql/migrations
-ENV STORE_MIGRATIONS_DIR=/data/mysql/migrations
+ADD ./data/mysql/migrations/store /data/mysql/migrations/store
+ENV STORE_MIGRATIONS_DIR=/data/mysql/migrations/store
 
 EXPOSE 8000
 

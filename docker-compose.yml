@@ -6,7 +6,7 @@ services:
     container_name: store-dev
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Store.Dockerfile
     ports:
       - "8000:8000" # REST API port
     environment:
