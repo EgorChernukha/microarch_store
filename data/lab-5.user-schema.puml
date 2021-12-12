@@ -1,0 +1,31 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor User
+participant "Ingress-nginx" #CCCCCC
+participant "Auth service"
+participant "User service"
+
+title Профиль пользователя:
+
+User -> "Ingress-nginx" : '<b>/user</b>/api/v1/...'
+
+"Ingress-nginx" -> "Auth service" : Запрос авторизации '/api/v1/auth'
+activate "Ingress-nginx"
+
+alt #LightBlue "Пользователь авторизован"
+
+"Auth service" -> "Ingress-nginx" : Авторизован - 200
+"Ingress-nginx" -> "User service" : Запрос '/api/v1/...' с заголовком X-Auth-Token
+"User service" -> "User" : Ответ
+
+else #Pink "Пользователь не авторизован"
+
+"Auth service" -> "Ingress-nginx" : Не авторизован - 401
+"Ingress-nginx" -> User : Не авторизован - 401
+
+end
+
+deactivate "Ingress-nginx"
+
+@enduml

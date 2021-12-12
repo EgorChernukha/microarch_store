@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor User
+participant "Ingress-nginx" #CCCCCC
+participant "Auth service"
+participant "User service"
+
+title Авторизация:
+User -> "Ingress-nginx" : '<b>/auth</b>/api/v1/...'
+note left
+<b>/auth</b>/api/v1/register
+<b>/auth</b>/api/v1/login
+<b>/auth</b>/api/v1/logout
+
+Доступа извне к <b>/auth</b>/api/v1/auth нет
+end note
+"Ingress-nginx" -> "Auth service": '/api/v1/...'
+"Auth service" -> User: Ответ
+
+deactivate "Ingress-nginx"
+
+@enduml
