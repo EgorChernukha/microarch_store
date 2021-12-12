@@ -81,7 +81,7 @@ func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler,
 	server.Start()
 
 	return &http.Server{
-		Addr:    ":8000",
+		Addr:    ":8080",
 		Handler: router,
 	}
 }

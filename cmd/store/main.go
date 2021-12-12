@@ -6,15 +6,16 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"store/pkg/common/infrastructure/prometheus"
 	"syscall"
 	"time"
 
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 
+	"store/pkg/common/infrastructure/prometheus"
 	"store/pkg/store/app"
 	"store/pkg/store/domain"
+	"store/pkg/store/infrastructure/jwt"
 	"store/pkg/store/infrastructure/mysql"
 	"store/pkg/store/infrastructure/transport"
 )
@@ -47,7 +48,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	srv := createServer(connector.Client(), metricsHandler)
+	srv := createServer(connector.Client(), metricsHandler, cnf)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -65,7 +66,7 @@ func main() {
 	log.Print("Server Exited Properly")
 }
 
-func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler) *http.Server {
+func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/metrics")
@@ -75,8 +76,9 @@ func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler)
 	userDomainService := domain.NewUserService(userRepository)
 	userService := app.NewUserService(userDomainService)
 	userQueryService := mysql.NewUserQueryService(client)
+	tokenParser := jwt.NewTokenParser(cnf.JWTSecret)
 
-	server := transport.NewServer(router, userService, userQueryService)
+	server := transport.NewServer(router, tokenParser, userService, userQueryService)
 	server.Start()
 
 	return &http.Server{

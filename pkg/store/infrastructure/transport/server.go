@@ -2,9 +2,9 @@ package transport
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
+	"store/pkg/store/infrastructure/jwt"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -16,17 +16,25 @@ import (
 )
 
 const (
-	createUserEndpoint = PathPrefix + "user"
-	specUserEndpoint   = PathPrefix + "user/{id}"
+	currentUserEndpoint = PathPrefix + "user"
+	specUserEndpoint    = PathPrefix + "user/{id}"
 )
+
+const (
+	errorCodeUnknown      = 0
+	errorCodeUserNotFound = 1
+)
+
+const authTokenHeader = "X-Auth-Token"
 
 type Server interface {
 	Start()
 }
 
-func NewServer(router *mux.Router, userService app.UserService, userQueryService app.UserQueryService) Server {
+func NewServer(router *mux.Router, tokenParser jwt.TokenParser, userService app.UserService, userQueryService app.UserQueryService) Server {
 	return &server{
 		router:           router,
+		tokenParser:      tokenParser,
 		userService:      userService,
 		userQueryService: userQueryService,
 	}
@@ -34,49 +42,51 @@ func NewServer(router *mux.Router, userService app.UserService, userQueryService
 
 type server struct {
 	router           *mux.Router
+	tokenParser      jwt.TokenParser
 	userService      app.UserService
 	userQueryService app.UserQueryService
 }
 
+type currentUserInfo struct {
+	UserID string `json:"id"`
+}
+
+type errorInfo struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 func (s *server) Start() {
-	s.router.HandleFunc(createUserEndpoint, s.createUserEndpoint).Methods(http.MethodPost)
+	s.router.HandleFunc(currentUserEndpoint, s.getCurrentUserIDHandler).Methods(http.MethodGet)
 	s.router.HandleFunc(specUserEndpoint, s.removeUserEndpoint).Methods(http.MethodDelete)
 	s.router.HandleFunc(specUserEndpoint, s.updateUserEndpoint).Methods(http.MethodPut)
 	s.router.HandleFunc(specUserEndpoint, s.getUserEndpoint).Methods(http.MethodGet)
 }
 
-func (s *server) createUserEndpoint(w http.ResponseWriter, r *http.Request) {
-	var data struct {
-		Username  string `json:"username"`
-		Firstname string `json:"firstname"`
-		Lastname  string `json:"lastname"`
-		Email     string `json:"email"`
-		Phone     string `json:"phone"`
-	}
-
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
-	err := decoder.Decode(&data)
+func (s *server) getCurrentUserIDHandler(w http.ResponseWriter, r *http.Request) {
+	tokenData, err := s.extractAuthorizationData(r)
 	if err != nil {
-		logrus.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		writeErrorResponse(w, err)
 		return
 	}
 
-	id, err := s.userService.AddUser(data.Username, data.Firstname, data.Lastname, data.Email, data.Phone)
-	if err != nil {
-		logrus.Error(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	io.WriteString(w, fmt.Sprintf(`{"id": "%s"}`, id))
-	w.WriteHeader(http.StatusOK)
+	writeResponse(w, currentUserInfo{UserID: tokenData.UserID()})
 }
 
 func (s *server) removeUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+
+	tokenData, err := s.extractAuthorizationData(r)
+	if err != nil {
+		writeErrorResponse(w, err)
+		return
+	}
+
+	if tokenData.UserID() != id {
+		writeErrorResponse(w, errUnauthorized)
+		return
+	}
 
 	if len(id) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -105,6 +115,17 @@ func (s *server) removeUserEndpoint(w http.ResponseWriter, r *http.Request) {
 func (s *server) updateUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+
+	tokenData, err := s.extractAuthorizationData(r)
+	if err != nil {
+		writeErrorResponse(w, err)
+		return
+	}
+
+	if tokenData.UserID() != id {
+		writeErrorResponse(w, errUnauthorized)
+		return
+	}
 
 	if len(id) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -151,6 +172,17 @@ func (s *server) getUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
+	tokenData, err := s.extractAuthorizationData(r)
+	if err != nil {
+		writeErrorResponse(w, err)
+		return
+	}
+
+	if tokenData.UserID() != id {
+		writeErrorResponse(w, errUnauthorized)
+		return
+	}
+
 	if len(id) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -183,3 +215,44 @@ func (s *server) getUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(userDataJson))
 	w.WriteHeader(http.StatusOK)
 }
+
+func (s *server) extractAuthorizationData(r *http.Request) (jwt.TokenData, error) {
+	token := r.Header.Get(authTokenHeader)
+	logrus.Info("token: " + token + ".")
+	if token == "" {
+		return nil, errUnauthorized
+	}
+	tokenData, err := s.tokenParser.ParseToken(token)
+	if err != nil {
+		return nil, errors.Wrap(errUnauthorized, err.Error())
+	}
+	return tokenData, nil
+}
+
+func writeResponse(w http.ResponseWriter, response interface{}) {
+	js, err := json.Marshal(response)
+	if err != nil {
+		writeErrorResponse(w, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(js)
+}
+
+func writeErrorResponse(w http.ResponseWriter, err error) {
+	info := errorInfo{Code: errorCodeUnknown, Message: err.Error()}
+	switch errors.Cause(err) {
+	case app.ErrUserNotExists:
+		info.Code = errorCodeUserNotFound
+		w.WriteHeader(http.StatusNotFound)
+	case errUnauthorized:
+		w.WriteHeader(http.StatusUnauthorized)
+	default:
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	js, _ := json.Marshal(info)
+	_, _ = w.Write(js)
+}
+
+var errUnauthorized = errors.New("access denied")

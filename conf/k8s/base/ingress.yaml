@@ -5,6 +5,7 @@ metadata:
   namespace: otus
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
   - host: arch.homework
@@ -16,4 +17,48 @@ spec:
             port:
               number: 8000
         pathType: Prefix
-        path: /
+        path: /user(/|$)(.*)
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: auth
+  namespace: otus
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+        - backend:
+            service:
+              name: auth
+              port:
+                number: 8000
+          pathType: Prefix
+          path: /auth(/|$)(.*)
+---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: store # Перезаписываем уже существующий ingress
+#  namespace: otus
+#  annotations:
+#    kubernetes.io/ingress.class: nginx
+#    nginx.ingress.kubernetes.io/rewrite-target: /$2
+#    nginx.ingress.kubernetes.io/auth-url: http://auth.default.svc.cluster.local/auth/nginx
+#    nginx.ingress.kubernetes.io/auth-response-headers: x-auth-token
+#spec:
+#  rules:
+#    - host: arch.homework
+#      http:
+#        paths:
+#          - backend:
+#              service:
+#                name: store
+#                port:
+#                  number: 8000
+#            pathType: Prefix
+#            path: /user(/|$)(.*)

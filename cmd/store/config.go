@@ -16,6 +16,7 @@ func parseEnv() (*config, error) {
 }
 
 type config struct {
+	JWTSecret            string `envconfig:"jwt_secret" default:"secret"`
 	DBHost               string `envconfig:"db_host"`
 	DBName               string `envconfig:"db_name"`
 	DBUser               string `envconfig:"db_user"`

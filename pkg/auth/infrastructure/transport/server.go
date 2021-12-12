@@ -51,6 +51,20 @@ func NewServer(router *mux.Router, authService app.UserService, sessionRepositor
 	}
 }
 
+type userAuthData struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
+
+type createdUserInfo struct {
+	UserID string `json:"id"`
+}
+
+type errorInfo struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 type server struct {
 	router            *mux.Router
 	userService       app.UserService
@@ -59,31 +73,31 @@ type server struct {
 }
 
 func (s *server) Start() {
-	s.router.Methods(http.MethodPost).Path(registerUserEndpoint).Handler(s.makeHandlerFunc(s.registerUserHandler))
-	s.router.Methods(http.MethodPost).Path(loginEndpoint).Handler(s.makeHandlerFunc(s.loginHandler))
-	s.router.Methods(http.MethodPost).Path(logoutEndpoint).Handler(s.makeHandlerFunc(s.logoutHandler))
-	s.router.Path(authEndpoint).Handler(s.makeHandlerFunc(s.authHandler))
+	s.router.Methods(http.MethodPost).Path(registerUserEndpoint).Handler(s.makeHandlerFunc(s.registerUserEndpoint))
+	s.router.Methods(http.MethodPost).Path(loginEndpoint).Handler(s.makeHandlerFunc(s.loginEndpoint))
+	s.router.Methods(http.MethodPost).Path(logoutEndpoint).Handler(s.makeHandlerFunc(s.logoutEndpoint))
+	s.router.Path(authEndpoint).Handler(s.makeHandlerFunc(s.authEndpoint))
 }
 
-func (s *server) makeHandlerFunc(fn func(http.ResponseWriter, *http.Request) error) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		_ = r.ParseForm()
+func (s *server) makeHandlerFunc(handler func(http.ResponseWriter, *http.Request) error) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		_ = request.ParseForm()
 		fields := logrus.Fields{
-			"method": r.Method,
-			"host":   r.Host,
-			"path":   r.URL.Path,
+			"method": request.Method,
+			"host":   request.Host,
+			"path":   request.URL.Path,
 		}
-		if r.URL.RawQuery != "" {
-			fields["query"] = r.URL.RawQuery
+		if request.URL.RawQuery != "" {
+			fields["query"] = request.URL.RawQuery
 		}
-		if r.PostForm != nil {
-			fields["post"] = r.PostForm
+		if request.PostForm != nil {
+			fields["post"] = request.PostForm
 		}
 
-		err := fn(w, r)
+		err := handler(writer, request)
 
 		if err != nil {
-			writeErrorResponse(w, err)
+			writeErrorResponse(writer, err)
 
 			fields["err"] = err
 			logrus.WithFields(fields).Error(err)
@@ -93,7 +107,7 @@ func (s *server) makeHandlerFunc(fn func(http.ResponseWriter, *http.Request) err
 	}
 }
 
-func (s *server) registerUserHandler(w http.ResponseWriter, r *http.Request) error {
+func (s *server) registerUserEndpoint(w http.ResponseWriter, r *http.Request) error {
 	var info userAuthData
 	bytesBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -111,7 +125,7 @@ func (s *server) registerUserHandler(w http.ResponseWriter, r *http.Request) err
 	return nil
 }
 
-func (s *server) loginHandler(w http.ResponseWriter, r *http.Request) error {
+func (s *server) loginEndpoint(w http.ResponseWriter, r *http.Request) error {
 	var info userAuthData
 	bytesBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -140,7 +154,7 @@ func (s *server) loginHandler(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (s *server) logoutHandler(w http.ResponseWriter, r *http.Request) error {
+func (s *server) logoutEndpoint(w http.ResponseWriter, r *http.Request) error {
 	if sessionID, err := getSessionIDFromRequest(r); err == nil {
 		err = s.sessionRepository.Remove(sessionID)
 		if err != nil {
@@ -153,7 +167,7 @@ func (s *server) logoutHandler(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (s *server) authHandler(w http.ResponseWriter, r *http.Request) error {
+func (s *server) authEndpoint(w http.ResponseWriter, r *http.Request) error {
 	sessionID, err := getSessionIDFromRequest(r)
 	if err != nil {
 		return errUnauthorized
@@ -242,18 +256,4 @@ func writeErrorResponse(w http.ResponseWriter, err error) {
 	}
 	js, _ := json.Marshal(info)
 	_, _ = w.Write(js)
-}
-
-type userAuthData struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
-}
-
-type createdUserInfo struct {
-	UserID string `json:"id"`
-}
-
-type errorInfo struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
 }

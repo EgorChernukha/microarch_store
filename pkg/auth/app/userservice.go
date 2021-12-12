@@ -3,6 +3,7 @@ package app
 import (
 	stderrors "errors"
 
+	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -32,7 +33,7 @@ func (u *userService) AddUser(login, password string) (UserID, error) {
 		return id, err
 	}
 
-	if user, err := u.userRepository.FindOneByLogin(login); err != ErrUserNotFound || user != nil {
+	if user, err := u.userRepository.FindOneByLogin(login); errors.Cause(err) != ErrUserNotFound || user != nil {
 		if user != nil {
 			return id, ErrUserAlreadyExists
 		}

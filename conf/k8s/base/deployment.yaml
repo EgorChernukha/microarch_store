@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: store
-  replicas: 3
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -24,6 +24,11 @@ spec:
         - image: echernukha/store:latest
           name: storecontainer
           env:
+            - name: STORE_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: store-secret
+                  key: STORE_JWT_SECRET
             - name: STORE_DB_HOST
               valueFrom:
                 secretKeyRef:
@@ -88,6 +93,11 @@ spec:
         - image: echernukha/auth:latest
           name: authcontainer
           env:
+            - name: AUTH_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: AUTH_JWT_SECRET
             - name: AUTH_DB_HOST
               valueFrom:
                 secretKeyRef:
@@ -110,18 +120,18 @@ spec:
                   key: AUTH_DB_PASSWORD
           ports:
             - name: http
-              containerPort: 8000
+              containerPort: 8080
           readinessProbe:
             httpGet:
               scheme: HTTP
               path: /health
-              port: 8000
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 5
           livenessProbe:
             httpGet:
               scheme: HTTP
               path: /health
-              port: 8000
+              port: 8080
             initialDelaySeconds: 15
             periodSeconds: 5
