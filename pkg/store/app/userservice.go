@@ -7,8 +7,7 @@ import (
 )
 
 type UserService interface {
-	AddUser(username, firstname, lastname, email, phone string) (uuid.UUID, error)
-	UpdateUser(id uuid.UUID, firstname, lastname, email, phone string) error
+	UpdateUser(id uuid.UUID, username, firstname, lastname, email, phone string) error
 	RemoveUser(id uuid.UUID) error
 }
 
@@ -20,14 +19,8 @@ type userService struct {
 	domainService domain.UserService
 }
 
-func (u *userService) AddUser(username, firstname, lastname, email, phone string) (uuid.UUID, error) {
-	userID, err := u.domainService.AddUser(username, firstname, lastname, email, phone)
-
-	return uuid.UUID(userID), err
-}
-
-func (u *userService) UpdateUser(id uuid.UUID, firstname, lastname, email, phone string) error {
-	return u.domainService.UpdateUser(domain.UserID(id), firstname, lastname, email, phone)
+func (u *userService) UpdateUser(id uuid.UUID, username, firstname, lastname, email, phone string) error {
+	return u.domainService.UpdateUser(domain.UserID(id), username, firstname, lastname, email, phone)
 }
 
 func (u *userService) RemoveUser(id uuid.UUID) error {

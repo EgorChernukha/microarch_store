@@ -84,7 +84,7 @@ func (s *server) removeUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if tokenData.UserID() != id {
-		writeErrorResponse(w, errUnauthorized)
+		writeErrorResponse(w, errForbidden)
 		return
 	}
 
@@ -123,7 +123,7 @@ func (s *server) updateUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if tokenData.UserID() != id {
-		writeErrorResponse(w, errUnauthorized)
+		writeErrorResponse(w, errForbidden)
 		return
 	}
 
@@ -155,7 +155,7 @@ func (s *server) updateUserEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.userService.UpdateUser(userID, data.Firstname, data.Lastname, data.Email, data.Phone)
+	err = s.userService.UpdateUser(userID, tokenData.UserLogin(), data.Firstname, data.Lastname, data.Email, data.Phone)
 	if errors.Cause(err) == domain.ErrUserNotFound {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -166,6 +166,7 @@ func (s *server) updateUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	_, _ = io.WriteString(w, http.StatusText(http.StatusOK))
 }
 
 func (s *server) getUserEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -179,7 +180,7 @@ func (s *server) getUserEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if tokenData.UserID() != id {
-		writeErrorResponse(w, errUnauthorized)
+		writeErrorResponse(w, errForbidden)
 		return
 	}
 
@@ -197,13 +198,12 @@ func (s *server) getUserEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	userData, err := s.userQueryService.FindUser(userID)
 	if errors.Cause(err) == app.ErrUserNotExists {
-		w.WriteHeader(http.StatusNotFound)
-		return
+		userData = app.UserData{ID: userID}
 	} else if err != nil {
-		logrus.Error(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		writeErrorResponse(w, err)
 		return
 	}
+	userData.Username = tokenData.UserLogin()
 
 	userDataJson, err := json.Marshal(userData)
 	if err != nil {
@@ -218,13 +218,12 @@ func (s *server) getUserEndpoint(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) extractAuthorizationData(r *http.Request) (jwt.TokenData, error) {
 	token := r.Header.Get(authTokenHeader)
-	logrus.Info("token: " + token + ".")
 	if token == "" {
-		return nil, errUnauthorized
+		return nil, errForbidden
 	}
 	tokenData, err := s.tokenParser.ParseToken(token)
 	if err != nil {
-		return nil, errors.Wrap(errUnauthorized, err.Error())
+		return nil, errors.Wrap(errForbidden, err.Error())
 	}
 	return tokenData, nil
 }
@@ -246,8 +245,8 @@ func writeErrorResponse(w http.ResponseWriter, err error) {
 	case app.ErrUserNotExists:
 		info.Code = errorCodeUserNotFound
 		w.WriteHeader(http.StatusNotFound)
-	case errUnauthorized:
-		w.WriteHeader(http.StatusUnauthorized)
+	case errForbidden:
+		w.WriteHeader(http.StatusForbidden)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -255,4 +254,4 @@ func writeErrorResponse(w http.ResponseWriter, err error) {
 	_, _ = w.Write(js)
 }
 
-var errUnauthorized = errors.New("access denied")
+var errForbidden = errors.New("access denied")

@@ -65,5 +65,6 @@ helm install mysql-store -f conf/helm/mysql/storevalues.yaml bitnami/mysql --ver
 
 kubectl apply -f ./conf/k8s/base/.
 
-
+# Запуск тестов
+newman run ./data/lab-5.tests.postman_collection.json
 ```

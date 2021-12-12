@@ -9,7 +9,7 @@
       "name": "Test Scenario",
       "item": [
         {
-          "name": "Initial logout",
+          "name": "Init",
           "event": [
             {
               "listen": "test",
@@ -104,7 +104,7 @@
       ]
     },
     {
-      "name": "User1",
+      "name": "User1 testcase",
       "item": [
         {
           "name": "Register",
@@ -591,7 +591,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n \"id\": \"16211162-809a-be7a-f035-f6c1446a0ace\",\n \"login\": \"in occaecat Ut con\",\n \"firstName\": \"laborum consectetur\",\n \"lastName\": \"ullamco occaecat nostrud ut\",\n \"email\": \"0fpTANSpQ@JjUAxIHyYVMxeQmjOkmcHuFxBqaWf.ryu\",\n \"phone\": \"commodo cillum nisi\"\n}"
+              "body": "{\n \"id\": \"16211162-809a-be7a-f035-f6c1446a0ace\",\n \"login\": \"in occaecat Ut con\",\n \"firstname\": \"laborum consectetur\",\n \"lastname\": \"ullamco occaecat nostrud ut\",\n \"email\": \"0fpTANSpQ@JjUAxIHyYVMxeQmjOkmcHuFxBqaWf.ryu\",\n \"phone\": \"commodo cillum nisi\"\n}"
             },
             {
               "name": "forbidden response",
@@ -700,7 +700,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"New name\",\n    \"lastName\": \"New lastname\",\n    \"email\": \"new@email.com\",\n    \"phone\": \"+71004242424\"\n}",
+              "raw": "{\n    \"firstname\": \"New name\",\n    \"lastname\": \"New lastname\",\n    \"email\": \"new@email.com\",\n    \"phone\": \"+71004242424\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -736,7 +736,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"firstName\": \"Julie\",\n    \"lastName\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
+                  "raw": "{\n    \"firstname\": \"Julie\",\n    \"lastname\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -782,7 +782,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"firstName\": \"Julie\",\n    \"lastName\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
+                  "raw": "{\n    \"firstname\": \"Julie\",\n    \"lastname\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -828,7 +828,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"firstName\": \"Julie\",\n    \"lastName\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
+                  "raw": "{\n    \"firstname\": \"Julie\",\n    \"lastname\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1197,13 +1197,13 @@
                   "        \"id\": {",
                   "            \"type\": \"string\"",
                   "        },",
-                  "        \"login\": {",
+                  "        \"username\": {",
                   "            \"type\": \"string\"",
                   "        },",
-                  "        \"firstName\": {",
+                  "        \"firstname\": {",
                   "            \"type\": \"string\"",
                   "        },",
-                  "        \"lastName\": {",
+                  "        \"lastname\": {",
                   "            \"type\": \"string\"",
                   "        },",
                   "        \"email\": {",
@@ -1213,7 +1213,7 @@
                   "            \"type\": \"string\"",
                   "        }",
                   "    },",
-                  "    \"required\": [\"id\", \"login\", \"firstName\", \"lastName\", \"email\", \"phone\"]",
+                  "    \"required\": [\"id\", \"username\", \"firstname\", \"lastname\", \"email\", \"phone\"]",
                   "};",
                   "",
                   "pm.test('Response schema is valid', function() {",
@@ -1223,9 +1223,9 @@
                   "pm.test('Initial profile data valid', function() {",
                   "    var responseJSON = JSON.parse(responseBody)",
                   "    pm.expect(responseJSON[\"id\"]).to.eql(pm.collectionVariables.get(\"userId\"))",
-                  "    pm.expect(responseJSON[\"login\"]).to.eql(pm.collectionVariables.get(\"login\"))",
-                  "    pm.expect(responseJSON[\"firstName\"]).empty",
-                  "    pm.expect(responseJSON[\"lastName\"]).empty",
+                  "    pm.expect(responseJSON[\"username\"]).to.eql(pm.collectionVariables.get(\"login\"))",
+                  "    pm.expect(responseJSON[\"firstname\"]).empty",
+                  "    pm.expect(responseJSON[\"lastname\"]).empty",
                   "    pm.expect(responseJSON[\"email\"]).empty",
                   "    pm.expect(responseJSON[\"phone\"]).empty",
                   "});",
@@ -1302,7 +1302,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n \"id\": \"16211162-809a-be7a-f035-f6c1446a0ace\",\n \"login\": \"in occaecat Ut con\",\n \"firstName\": \"laborum consectetur\",\n \"lastName\": \"ullamco occaecat nostrud ut\",\n \"email\": \"0fpTANSpQ@JjUAxIHyYVMxeQmjOkmcHuFxBqaWf.ryu\",\n \"phone\": \"commodo cillum nisi\"\n}"
+              "body": "{\n \"id\": \"16211162-809a-be7a-f035-f6c1446a0ace\",\n \"login\": \"in occaecat Ut con\",\n \"firstname\": \"laborum consectetur\",\n \"lastname\": \"ullamco occaecat nostrud ut\",\n \"email\": \"0fpTANSpQ@JjUAxIHyYVMxeQmjOkmcHuFxBqaWf.ryu\",\n \"phone\": \"commodo cillum nisi\"\n}"
             },
             {
               "name": "forbidden response",
@@ -1387,8 +1387,8 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "pm.collectionVariables.set(\"firstName\", pm.variables.replaceIn('{{$randomFirstName}}'))",
-                  "pm.collectionVariables.set(\"lastName\", pm.variables.replaceIn('{{$randomLastName}}'))",
+                  "pm.collectionVariables.set(\"firstname\", pm.variables.replaceIn('{{$randomFirstName}}'))",
+                  "pm.collectionVariables.set(\"lastname\", pm.variables.replaceIn('{{$randomLastName}}'))",
                   "pm.collectionVariables.set(\"email\", pm.variables.replaceIn('{{$randomEmail}}'))",
                   "pm.collectionVariables.set(\"phone\", pm.variables.replaceIn('{{$randomPhoneNumber}}'))"
                 ],
@@ -1428,7 +1428,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"{{firstName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"email\": \"{{email}}\",\n    \"phone\": \"{{phone}}\"\n}",
+              "raw": "{\n    \"firstname\": \"{{firstname}}\",\n    \"lastname\": \"{{lastname}}\",\n    \"email\": \"{{email}}\",\n    \"phone\": \"{{phone}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1464,7 +1464,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"firstName\": \"Julie\",\n    \"lastName\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
+                  "raw": "{\n    \"firstname\": \"Julie\",\n    \"lastname\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1510,7 +1510,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"firstName\": \"Julie\",\n    \"lastName\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
+                  "raw": "{\n    \"firstname\": \"Julie\",\n    \"lastname\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1556,7 +1556,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"firstName\": \"Julie\",\n    \"lastName\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
+                  "raw": "{\n    \"firstname\": \"Julie\",\n    \"lastname\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1614,13 +1614,13 @@
                   "        \"id\": {",
                   "            \"type\": \"string\"",
                   "        },",
-                  "        \"login\": {",
+                  "        \"username\": {",
                   "            \"type\": \"string\"",
                   "        },",
-                  "        \"firstName\": {",
+                  "        \"firstname\": {",
                   "            \"type\": \"string\"",
                   "        },",
-                  "        \"lastName\": {",
+                  "        \"lastname\": {",
                   "            \"type\": \"string\"",
                   "        },",
                   "        \"email\": {",
@@ -1630,7 +1630,7 @@
                   "            \"type\": \"string\"",
                   "        }",
                   "    },",
-                  "    \"required\": [\"id\", \"login\", \"firstName\", \"lastName\", \"email\", \"phone\"]",
+                  "    \"required\": [\"id\", \"username\", \"firstname\", \"lastname\", \"email\", \"phone\"]",
                   "};",
                   "",
                   "pm.test('Response schema is valid', function() {",
@@ -1640,9 +1640,9 @@
                   "pm.test('Initial profile data valid', function() {",
                   "    var responseJSON = JSON.parse(responseBody)",
                   "    pm.expect(responseJSON[\"id\"]).to.eql(pm.collectionVariables.get(\"userId\"))",
-                  "    pm.expect(responseJSON[\"login\"]).to.eql(pm.collectionVariables.get(\"login\"))",
-                  "    pm.expect(responseJSON[\"firstName\"]).to.eql(pm.collectionVariables.get(\"firstName\"))",
-                  "    pm.expect(responseJSON[\"lastName\"]).to.eql(pm.collectionVariables.get(\"lastName\"))",
+                  "    pm.expect(responseJSON[\"username\"]).to.eql(pm.collectionVariables.get(\"login\"))",
+                  "    pm.expect(responseJSON[\"firstname\"]).to.eql(pm.collectionVariables.get(\"firstname\"))",
+                  "    pm.expect(responseJSON[\"lastname\"]).to.eql(pm.collectionVariables.get(\"lastname\"))",
                   "    pm.expect(responseJSON[\"email\"]).to.eql(pm.collectionVariables.get(\"email\"))",
                   "    pm.expect(responseJSON[\"phone\"]).to.eql(pm.collectionVariables.get(\"phone\"))",
                   "});",
@@ -1719,7 +1719,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n \"id\": \"16211162-809a-be7a-f035-f6c1446a0ace\",\n \"login\": \"in occaecat Ut con\",\n \"firstName\": \"laborum consectetur\",\n \"lastName\": \"ullamco occaecat nostrud ut\",\n \"email\": \"0fpTANSpQ@JjUAxIHyYVMxeQmjOkmcHuFxBqaWf.ryu\",\n \"phone\": \"commodo cillum nisi\"\n}"
+              "body": "{\n \"id\": \"16211162-809a-be7a-f035-f6c1446a0ace\",\n \"login\": \"in occaecat Ut con\",\n \"firstname\": \"laborum consectetur\",\n \"lastname\": \"ullamco occaecat nostrud ut\",\n \"email\": \"0fpTANSpQ@JjUAxIHyYVMxeQmjOkmcHuFxBqaWf.ryu\",\n \"phone\": \"commodo cillum nisi\"\n}"
             },
             {
               "name": "forbidden response",
@@ -1893,7 +1893,7 @@
       ]
     },
     {
-      "name": "User2",
+      "name": "User2 testcase",
       "item": [
         {
           "name": "Register",
@@ -2296,7 +2296,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n \"id\": \"16211162-809a-be7a-f035-f6c1446a0ace\",\n \"login\": \"in occaecat Ut con\",\n \"firstName\": \"laborum consectetur\",\n \"lastName\": \"ullamco occaecat nostrud ut\",\n \"email\": \"0fpTANSpQ@JjUAxIHyYVMxeQmjOkmcHuFxBqaWf.ryu\",\n \"phone\": \"commodo cillum nisi\"\n}"
+              "body": "{\n \"id\": \"16211162-809a-be7a-f035-f6c1446a0ace\",\n \"login\": \"in occaecat Ut con\",\n \"firstname\": \"laborum consectetur\",\n \"lastname\": \"ullamco occaecat nostrud ut\",\n \"email\": \"0fpTANSpQ@JjUAxIHyYVMxeQmjOkmcHuFxBqaWf.ryu\",\n \"phone\": \"commodo cillum nisi\"\n}"
             },
             {
               "name": "forbidden response",
@@ -2381,8 +2381,8 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "pm.collectionVariables.set(\"firstName\", pm.variables.replaceIn('{{$randomFirstName}}'))",
-                  "pm.collectionVariables.set(\"lastName\", pm.variables.replaceIn('{{$randomLastName}}'))",
+                  "pm.collectionVariables.set(\"firstname\", pm.variables.replaceIn('{{$randomFirstName}}'))",
+                  "pm.collectionVariables.set(\"lastname\", pm.variables.replaceIn('{{$randomLastName}}'))",
                   "pm.collectionVariables.set(\"email\", pm.variables.replaceIn('{{$randomEmail}}'))",
                   "pm.collectionVariables.set(\"phone\", pm.variables.replaceIn('{{$randomPhoneNumber}}'))"
                 ],
@@ -2418,7 +2418,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"firstName\": \"New name\",\n    \"lastName\": \"New lastname\",\n    \"email\": \"new@email.com\",\n    \"phone\": \"+71004242424\"\n}",
+              "raw": "{\n    \"firstname\": \"New name\",\n    \"lastname\": \"New lastname\",\n    \"email\": \"new@email.com\",\n    \"phone\": \"+71004242424\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2454,7 +2454,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"firstName\": \"Julie\",\n    \"lastName\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
+                  "raw": "{\n    \"firstname\": \"Julie\",\n    \"lastname\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2500,7 +2500,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"firstName\": \"Julie\",\n    \"lastName\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
+                  "raw": "{\n    \"firstname\": \"Julie\",\n    \"lastname\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2546,7 +2546,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"firstName\": \"Julie\",\n    \"lastName\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
+                  "raw": "{\n    \"firstname\": \"Julie\",\n    \"lastname\": \"Doe\",\n    \"email\": \"bestjohn@doe.com\",\n    \"phone\": \"+71004242424\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2735,11 +2735,11 @@
       "value": ""
     },
     {
-      "key": "firstName",
+      "key": "firstname",
       "value": ""
     },
     {
-      "key": "lastName",
+      "key": "lastname",
       "value": ""
     },
     {

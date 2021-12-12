@@ -186,13 +186,14 @@ func (s *server) authEndpoint(w http.ResponseWriter, r *http.Request) error {
 	session.ValidTill = time.Now().Add(sessionLifetime)
 	_ = s.sessionRepository.Store(session)
 
-	token, err := s.tokenGenerator.GenerateToken(uuid.UUID(user.ID).String(), string(user.Login))
+	token, err := s.tokenGenerator.GenerateToken(uuid.UUID(user.ID).String(), user.Login)
 	if err != nil {
 		return err
 	}
 
 	w.Header().Set(authTokenHeader, token)
 	w.WriteHeader(http.StatusOK)
+
 	return nil
 }
 
