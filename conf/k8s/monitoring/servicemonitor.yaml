@@ -14,7 +14,7 @@ spec:
   endpoints:
     - interval: 15s
       port: web
-      path: /metrics
+      path: /monitoring
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -32,4 +32,4 @@ spec:
   endpoints:
     - interval: 15s
       port: web
-      path: /metrics
+      path: /monitoring

@@ -69,7 +69,7 @@ func main() {
 func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
-	metricsHandler.AddMetricsHandler(router, "/metrics")
+	metricsHandler.AddMetricsHandler(router, "/monitoring")
 	metricsHandler.AddCommonMetricsMiddleware(router)
 
 	userRepository := mysql.NewUserRepository(client)

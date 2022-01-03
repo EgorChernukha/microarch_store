@@ -1,0 +1,34 @@
+auth:
+  database: billing
+  username: billing
+  password: gBe-o9dNFF
+
+# Primary database configuration
+primary:
+  # Enable persistence using Persistent Volume Claims
+  persistence:
+    # If true, use a Persistent Volume Claim, If false, use emptyDir
+    enabled: true
+  # MySQL primary Pod security context
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+  # MySQL primary container security context
+  containerSecurityContext:
+    enabled: false
+    runAsUser: 1001
+
+# Secondary database configuration
+secondary:
+  # Enable persistence using Persistent Volume Claims
+  persistence:
+    # If true, use a Persistent Volume Claim, If false, use emptyDir
+    enabled: true
+  # MySQL secondary Pod security context
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+  # MySQL secondary container security context
+  containerSecurityContext:
+    enabled: false
+    runAsUser: 1001
