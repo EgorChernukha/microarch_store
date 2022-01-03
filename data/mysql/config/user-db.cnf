@@ -1,5 +1,5 @@
-; This file contains parameters for store service
-; TODO: Create database configuration file for your store-scratch service
+; This file contains parameters for user service
+; TODO: Create database configuration file for your user-scratch service
 [mysqld]
 
 ; Reduce memory usage

@@ -1,0 +1,223 @@
+newman
+
+lab 5
+
+❏ Test Scenario
+↳ Init
+  POST arch.homework/auth/api/v1/logout [200 OK, 153B, 127ms]
+  ✓  Request params: 
+	
+  ✓  Response: 
+	
+  ✓  Status code is 200
+
+❏ User1 testcase
+↳ Register
+  POST arch.homework/auth/api/v1/register [200 OK, 191B, 14ms]
+  ✓  Request params: 
+	{
+	    "login": "Sophie41",
+	    "password": "yNm_avP3ZFDX9s9"
+	}
+  ✓  Response: 
+	{"id":"97d241a8-5b57-11ec-afed-0242ac110004"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+
+↳ Register with same login
+  POST arch.homework/auth/api/v1/register [400 Bad Request, 192B, 10ms]
+  ✓  Request params: 
+	{
+	    "login": "Sophie41",
+	    "password": "yNm_avP3ZFDX9s9"
+	}
+  ✓  Response: 
+	{"code":2,"message":"user already exists"}
+  ✓  Status code is 400
+
+↳ Get current user id without login
+  GET arch.homework/user/api/v1/user [401 Unauthorized, 308B, 7ms]
+  ✓  Request params: 
+	
+  ✓  Response: 
+	<html>
+	<head><title>401 Authorization Required</title></head>
+	<body>
+	<center><h1>401 Authorization Required</h1></center>
+	<hr><center>nginx</center>
+	</body>
+	</html>
+	
+  ✓  Status code is 401
+
+↳ Get user profile without login
+  GET arch.homework/user/api/v1/user/97d241a8-5b57-11ec-afed-0242ac110004 [401 Unauthorized, 308B, 6ms]
+  ✓  Request params: 
+	
+  ✓  Response: 
+	<html>
+	<head><title>401 Authorization Required</title></head>
+	<body>
+	<center><h1>401 Authorization Required</h1></center>
+	<hr><center>nginx</center>
+	</body>
+	</html>
+	
+  ✓  Status code is 401
+
+↳ Update user profile without login
+  PUT arch.homework/user/api/v1/user/97d241a8-5b57-11ec-afed-0242ac110004 [401 Unauthorized, 308B, 10ms]
+  ✓  Request params: 
+	{
+	    "firstname": "New name",
+	    "lastname": "New lastname",
+	    "email": "new@email.com",
+	    "phone": "+71004242424"
+	}
+  ✓  Response: 
+	<html>
+	<head><title>401 Authorization Required</title></head>
+	<body>
+	<center><h1>401 Authorization Required</h1></center>
+	<hr><center>nginx</center>
+	</body>
+	</html>
+	
+  ✓  Status code is 401
+
+↳ Login user
+  POST arch.homework/auth/api/v1/login [200 OK, 178B, 14ms]
+  ✓  Request params: 
+	{
+	    "login": "Sophie41",
+	    "password": "yNm_avP3ZFDX9s9"
+	}
+  ✓  Response: 
+	
+  ✓  Status code is 200
+
+↳ Get current user id
+  GET arch.homework/user/api/v1/user [200 OK, 191B, 18ms]
+  ✓  Request params: 
+	
+  ✓  Response: 
+	{"id":"97d241a8-5b57-11ec-afed-0242ac110004"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Returns current user id
+
+↳ Get initial user profile
+  GET arch.homework/user/api/v1/user/97d241a8-5b57-11ec-afed-0242ac110004 [200 OK, 260B, 18ms]
+  ✓  Request params: 
+	
+  ✓  Response: 
+	{"id":"97d241a8-5b57-11ec-afed-0242ac110004","username":"Sophie41","firstname":"","lastname":"","email":"","phone":""}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Initial profile data valid
+
+↳ Update user profile
+  PUT arch.homework/user/api/v1/user/97d241a8-5b57-11ec-afed-0242ac110004 [200 OK, 142B, 18ms]
+  ✓  Request params: 
+	{
+	    "firstname": "Dawn",
+	    "lastname": "Stracke",
+	    "email": "Nicolas_OConnell@yahoo.com",
+	    "phone": "731-832-8915"
+	}
+  ✓  Response: 
+	OK
+  ✓  Status code is 200
+  ✓  Response is valid
+
+↳ Get user profile
+  GET arch.homework/user/api/v1/user/97d241a8-5b57-11ec-afed-0242ac110004 [200 OK, 309B, 21ms]
+  ✓  Request params: 
+	
+  ✓  Response: 
+	{"id":"97d241a8-5b57-11ec-afed-0242ac110004","username":"Sophie41","firstname":"Dawn","lastname":"Stracke","email":"Nicolas_OConnell@yahoo.com","phone":"731-832-8915"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Initial profile data valid
+
+↳ Logout
+  POST arch.homework/auth/api/v1/logout [200 OK, 153B, 11ms]
+  ✓  Request params: 
+	
+  ✓  Response: 
+	
+  ✓  Status code is 200
+
+❏ User2 testcase
+↳ Register
+  POST arch.homework/auth/api/v1/register [200 OK, 191B, 8ms]
+  ✓  Request params: 
+	{
+	    "login": "Zoey95",
+	    "password": "kCpSRBY3Dn7SUgO"
+	}
+  ✓  Response: 
+	{"id":"983ea291-5b57-11ec-afed-0242ac110004"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Users have different id
+
+↳ Login user
+  POST arch.homework/auth/api/v1/login [200 OK, 178B, 12ms]
+  ✓  Request params: 
+	{
+	    "login": "Zoey95",
+	    "password": "kCpSRBY3Dn7SUgO"
+	}
+  ✓  Response: 
+	
+  ✓  Status code is 200
+
+↳ Get user1 profile
+  GET arch.homework/user/api/v1/user/97d241a8-5b57-11ec-afed-0242ac110004 [403 Forbidden, 184B, 17ms]
+  ✓  Request params: 
+	
+  ✓  Response: 
+	{"code":0,"message":"access denied"}
+  ✓  Status code is 403
+
+↳ Update user1 profile
+  PUT arch.homework/user/api/v1/user/97d241a8-5b57-11ec-afed-0242ac110004 [403 Forbidden, 184B, 34ms]
+  ✓  Request params: 
+	{
+	    "firstname": "New name",
+	    "lastname": "New lastname",
+	    "email": "new@email.com",
+	    "phone": "+71004242424"
+	}
+  ✓  Response: 
+	{"code":0,"message":"access denied"}
+  ✓  Status code is 403
+
+↳ Logout
+  POST arch.homework/auth/api/v1/logout [200 OK, 153B, 13ms]
+  ✓  Request params: 
+	
+  ✓  Response: 
+	
+  ✓  Status code is 200
+
+┌─────────────────────────┬───────────────────┬──────────────────┐
+│                         │          executed │           failed │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              iterations │                 1 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│                requests │                17 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│            test-scripts │                34 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│      prerequest-scripts │                21 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              assertions │                61 │                0 │
+├─────────────────────────┴───────────────────┴──────────────────┤
+│ total run duration: 1238ms                                     │
+├────────────────────────────────────────────────────────────────┤
+│ total data received: 1.05kB (approx)                           │
+├────────────────────────────────────────────────────────────────┤
+│ average response time: 21ms [min: 6ms, max: 127ms, s.d.: 27ms] │
+└────────────────────────────────────────────────────────────────┘

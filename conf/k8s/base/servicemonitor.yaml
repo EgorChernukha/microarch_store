@@ -1,16 +1,16 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: store
+  name: user
   labels:
-    app: store
+    app: user
 spec:
   namespaceSelector:
     matchNames:
       - otus
   selector:
     matchLabels:
-      app: store
+      app: user
   endpoints:
     - interval: 15s
       port: web

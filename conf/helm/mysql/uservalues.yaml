@@ -1,6 +1,6 @@
 auth:
-  database: store
-  username: store
+  database: user
+  username: user
   password: gBe-o9dNFF
 
 # Primary database configuration

@@ -1,35 +1,35 @@
 version: '3.3'
 
 services:
-  store-dev:
-    image: echernukha/store
-    container_name: store-dev
+  user-dev:
+    image: echernukha/user
+    container_name: user-dev
     build:
       context: .
-      dockerfile: Store.Dockerfile
+      dockerfile: User.Dockerfile
     ports:
       - "8000:8000" # REST API port
     environment:
-      STORE_DB_HOST: store-db-dev:3306
-      STORE_DB_NAME: store
-      STORE_DB_USER: store
-      STORE_DB_PASSWORD: gBe-o9dNFF
+      USER_DB_HOST: user-db-dev:3306
+      USER_DB_NAME: user
+      USER_DB_USER: user
+      USER_DB_PASSWORD: gBe-o9dNFF
       # Coupled with MySQL 'max_connections' option: must be 'max_connections - 5'
-      STORE_DB_MAX_CONN: 5
+      USER_DB_MAX_CONN: 5
     depends_on:
-      - store-db-dev
+      - user-db-dev
 
-  store-db-dev:
+  user-db-dev:
     image: percona
-    container_name: store-db-dev
+    container_name: user-db-dev
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_DATABASE: store
-      MYSQL_USER: store
+      MYSQL_DATABASE: user
+      MYSQL_USER: user
       MYSQL_PASSWORD: gBe-o9dNFF
     volumes:
-      - "store-db-dev-data:/var/lib/mysql"
+      - "user-db-dev-data:/var/lib/mysql"
       - "${PWD}/data/mysql/config/:/etc/my.cnf.d"
 
 volumes:
-  store-db-dev-data:
+  user-db-dev-data:

@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"store/pkg/store/domain"
+	"store/pkg/user/domain"
 )
 
 func NewUserRepository(client Client) domain.UserRepository {

@@ -3,7 +3,7 @@ package app
 import (
 	uuid "github.com/satori/go.uuid"
 
-	"store/pkg/store/domain"
+	"store/pkg/user/domain"
 )
 
 type UserService interface {

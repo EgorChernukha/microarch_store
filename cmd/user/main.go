@@ -13,15 +13,15 @@ import (
 	"github.com/gorilla/mux"
 
 	"store/pkg/common/infrastructure/prometheus"
-	"store/pkg/store/app"
-	"store/pkg/store/domain"
-	"store/pkg/store/infrastructure/jwt"
-	"store/pkg/store/infrastructure/mysql"
-	"store/pkg/store/infrastructure/transport"
+	"store/pkg/user/app"
+	"store/pkg/user/domain"
+	"store/pkg/user/infrastructure/jwt"
+	"store/pkg/user/infrastructure/mysql"
+	"store/pkg/user/infrastructure/transport"
 )
 
 const (
-	appID = "store"
+	appID = "user"
 )
 
 func main() {

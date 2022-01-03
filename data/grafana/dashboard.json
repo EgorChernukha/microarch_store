@@ -39,7 +39,7 @@
       },
       "id": 74,
       "panels": [],
-      "title": "store",
+      "title": "user",
       "type": "row"
     },
     {
@@ -114,7 +114,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(app_request_latency_seconds_count{service=\"store\", namespace=\"$namespace\"}[$interval])) by (exported_endpoint, method)",
+          "expr": "sum(rate(app_request_latency_seconds_count{service=\"user\", namespace=\"$namespace\"}[$interval])) by (exported_endpoint, method)",
           "interval": "",
           "legendFormat": "{{method}} {{exported_endpoint}}",
           "refId": "A"
@@ -283,14 +283,14 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.5, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
+          "expr": "histogram_quantile(0.5, sum(rate(app_request_latency_seconds_bucket{service=\"user\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
           "interval": "",
           "legendFormat": "0.5 quantile",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
+          "expr": "histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket{service=\"user\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
           "hide": false,
           "interval": "",
           "legendFormat": "0.95 quantile",
@@ -298,7 +298,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.99, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
+          "expr": "histogram_quantile(0.99, sum(rate(app_request_latency_seconds_bucket{service=\"user\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (le))*1000",
           "hide": false,
           "interval": "",
           "legendFormat": "0.99 quantile",
@@ -306,7 +306,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(1.0, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\"}[$interval])) by (le))*1000",
+          "expr": "histogram_quantile(1.0, sum(rate(app_request_latency_seconds_bucket{service=\"user\", namespace=\"$namespace\"}[$interval])) by (le))*1000",
           "hide": true,
           "interval": "",
           "legendFormat": "max",
@@ -386,14 +386,14 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.5, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
+          "expr": "histogram_quantile(0.5, sum(rate(app_request_latency_seconds_bucket{service=\"user\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
           "interval": "",
           "legendFormat": "q 0.5 {{method}} {{exported_endpoint}}",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
+          "expr": "histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket{service=\"user\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
           "hide": false,
           "interval": "",
           "legendFormat": "q 0.95 {{method}} {{exported_endpoint}}",
@@ -401,7 +401,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.99, sum(rate(app_request_latency_seconds_bucket{service=\"store\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
+          "expr": "histogram_quantile(0.99, sum(rate(app_request_latency_seconds_bucket{service=\"user\", namespace=\"$namespace\", exported_endpoint=~\"/api/v1.*\"}[$interval])) by (exported_endpoint, method, le))*1000",
           "hide": false,
           "interval": "",
           "legendFormat": "q 0.99 {{method}} {{exported_endpoint}}",
@@ -530,14 +530,14 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.5, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service=\"store\"}[2m])) by (le))*1000",
+          "expr": "histogram_quantile(0.5, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service=\"user\"}[2m])) by (le))*1000",
           "interval": "",
           "legendFormat": "0.5 quantile",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service=\"store\"}[2m])) by (le))*1000",
+          "expr": "histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service=\"user\"}[2m])) by (le))*1000",
           "hide": false,
           "interval": "",
           "legendFormat": "0.95 quantile",
@@ -545,7 +545,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service=\"store\"}[2m])) by (le))*1000",
+          "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service=\"user\"}[2m])) by (le))*1000",
           "hide": false,
           "interval": "",
           "legendFormat": "0.99 quantile",
@@ -553,7 +553,7 @@
         },
         {
           "exemplar": true,
-          "expr": "histogram_quantile(1.0, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service=\"store\"}[2m)) by (le))*1000",
+          "expr": "histogram_quantile(1.0, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service=\"user\"}[2m)) by (le))*1000",
           "hide": true,
           "interval": "",
           "legendFormat": "max",
@@ -643,7 +643,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(nginx_ingress_controller_request_duration_seconds_count{exported_service=\"store\", exported_namespace=\"$namespace\"}[$interval])) by (status)",
+          "expr": "sum(rate(nginx_ingress_controller_request_duration_seconds_count{exported_service=\"user\", exported_namespace=\"$namespace\"}[$interval])) by (status)",
           "hide": false,
           "interval": "",
           "legendFormat": "status - {{status}}",
@@ -796,7 +796,7 @@
       },
       "id": 83,
       "panels": [],
-      "title": "store Pod Resources",
+      "title": "user Pod Resources",
       "type": "row"
     },
     {
@@ -864,7 +864,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace=\"$namespace\", container=\"storecontainer\"}) by (pod)",
+          "expr": "sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace=\"$namespace\", container=\"usercontainer\"}) by (pod)",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -983,7 +983,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"$namespace\", container=\"storecontainer\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{namespace=\"$namespace\", container=\"usercontainer\"}) by (pod)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,

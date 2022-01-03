@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: store
+  name: user
   namespace: otus
   labels:
-    app: store
+    app: user
 spec:
   selector:
     matchLabels:
-      app: store
-  replicas: 1
+      app: user
+  replicas: 3
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -18,37 +18,37 @@ spec:
   template:
     metadata:
       labels:
-        app: store
+        app: user
     spec:
       containers:
-        - image: echernukha/store:latest
-          name: storecontainer
+        - image: echernukha/user:latest
+          name: usercontainer
           env:
-            - name: STORE_JWT_SECRET
+            - name: USER_JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: store-secret
-                  key: STORE_JWT_SECRET
-            - name: STORE_DB_HOST
+                  name: user-secret
+                  key: USER_JWT_SECRET
+            - name: USER_DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: store-secret
-                  key: STORE_DB_HOST
-            - name: STORE_DB_NAME
+                  name: user-secret
+                  key: USER_DB_HOST
+            - name: USER_DB_NAME
               valueFrom:
                 secretKeyRef:
-                  name: store-secret
-                  key: STORE_DB_NAME
-            - name: STORE_DB_USER
+                  name: user-secret
+                  key: USER_DB_NAME
+            - name: USER_DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: store-secret
-                  key: STORE_DB_USER
-            - name: STORE_DB_PASSWORD
+                  name: user-secret
+                  key: USER_DB_USER
+            - name: USER_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: store-secret
-                  key: STORE_DB_PASSWORD
+                  name: user-secret
+                  key: USER_DB_PASSWORD
           ports:
             - name: http
               containerPort: 8000
@@ -78,7 +78,7 @@ spec:
   selector:
     matchLabels:
       app: auth
-  replicas: 1
+  replicas: 3
   strategy:
     type: RollingUpdate
     rollingUpdate:

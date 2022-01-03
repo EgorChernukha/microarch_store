@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: store-secret
+  name: user-secret
 type: Opaque
 data:
-  STORE_JWT_SECRET: NDJiOTZjYzUtNGM3NC0xMWVjLWJjOWItMDI0MmFjMTEwMDA5
-  STORE_DB_HOST: bXlzcWwtc3RvcmU=
-  STORE_DB_NAME: c3RvcmU=
-  STORE_DB_USER: c3RvcmU=
-  STORE_DB_PASSWORD: Z0JlLW85ZE5GRg==
+  USER_JWT_SECRET: NDJiOTZjYzUtNGM3NC0xMWVjLWJjOWItMDI0MmFjMTEwMDA5
+  USER_DB_HOST: bXlzcWwtdXNlcg==
+  USER_DB_NAME: dXNlcg==
+  USER_DB_USER: dXNlcg==
+  USER_DB_PASSWORD: Z0JlLW85ZE5GRg==
 ---
 apiVersion: v1
 kind: Secret

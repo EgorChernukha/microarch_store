@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"store/pkg/store/app"
+	"store/pkg/user/app"
 )
 
 func NewUserQueryService(client Client) app.UserQueryService {

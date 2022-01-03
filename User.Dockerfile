@@ -6,13 +6,13 @@ RUN apt-get update && \
     groupadd -g 1001 microuser && \
     useradd -u 1001 -r -g 1001 -s /sbin/nologin -c "go microservice user" microuser
 
-ADD ./bin/store /app/bin/
+ADD ./bin/user /app/bin/
 WORKDIR /app
 
-ADD ./data/mysql/migrations/store /data/mysql/migrations/store
-ENV STORE_MIGRATIONS_DIR=/data/mysql/migrations/store
+ADD data/mysql/migrations/user /data/mysql/migrations/user
+ENV USER_MIGRATIONS_DIR=/data/mysql/migrations/user
 
 EXPOSE 8000
 
 USER microuser
-CMD [ "/app/bin/store" ]
+CMD [ "/app/bin/user" ]
