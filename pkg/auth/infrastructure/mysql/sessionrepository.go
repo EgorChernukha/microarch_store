@@ -2,24 +2,28 @@ package mysql
 
 import (
 	"database/sql"
+	"time"
+
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
+
+	"store/pkg/common/infrastructure/mysql"
+
 	"store/pkg/auth/app"
-	"time"
 )
 
-func NewSessionRepository(client Client) app.SessionRepository {
+func NewSessionRepository(client mysql.Client) app.SessionRepository {
 	return &sessionRepository{client: client}
 }
 
 type sessionRepository struct {
-	client Client
+	client mysql.Client
 }
 
 type sqlxSession struct {
-	ID        binaryUUID `db:"id"`
-	UserID    binaryUUID `db:"user_id"`
-	ValidTill time.Time  `db:"valid_till"`
+	ID        mysql.BinaryUUID `db:"id"`
+	UserID    mysql.BinaryUUID `db:"user_id"`
+	ValidTill time.Time        `db:"valid_till"`
 }
 
 func (s *sessionRepository) Store(session *app.Session) error {
@@ -29,8 +33,8 @@ func (s *sessionRepository) Store(session *app.Session) error {
 	ON DUPLICATE KEY UPDATE user_id=VALUES(user_id), valid_till=VALUES(valid_till)`
 
 	sqlSession := sqlxSession{
-		ID:        binaryUUID(session.ID),
-		UserID:    binaryUUID(session.UserID),
+		ID:        mysql.BinaryUUID(session.ID),
+		UserID:    mysql.BinaryUUID(session.UserID),
 		ValidTill: session.ValidTill,
 	}
 
@@ -40,7 +44,7 @@ func (s *sessionRepository) Store(session *app.Session) error {
 
 func (s *sessionRepository) Remove(id app.SessionID) error {
 	const sqlQuery = `DELETE FROM user_session WHERE id=?`
-	_, err := s.client.Exec(sqlQuery, binaryUUID(id))
+	_, err := s.client.Exec(sqlQuery, mysql.BinaryUUID(id))
 
 	return errors.WithStack(err)
 }

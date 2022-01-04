@@ -12,12 +12,15 @@ import (
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 
+	commonmysql "store/pkg/common/infrastructure/mysql"
+	"store/pkg/common/infrastructure/prometheus"
+	commontransport "store/pkg/common/infrastructure/transport"
+
 	"store/pkg/auth/app"
 	"store/pkg/auth/infrastructure/encoding"
 	"store/pkg/auth/infrastructure/jwt"
 	"store/pkg/auth/infrastructure/mysql"
 	"store/pkg/auth/infrastructure/transport"
-	"store/pkg/common/infrastructure/prometheus"
 )
 
 const (
@@ -30,12 +33,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	connector := mysql.NewConnector()
+	connector := commonmysql.NewConnector()
 	err = connector.MigrateUp(cnf.dsn(), cnf.MigrationsDir)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = connector.Open(cnf.dsn(), mysql.Config{
+	err = connector.Open(cnf.dsn(), commonmysql.Config{
 		MaxConnections:     cnf.DBMaxConn,
 		ConnectionLifetime: time.Duration(cnf.DBConnectionLifetime) * time.Second,
 	})
@@ -43,7 +46,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	metricsHandler, err := prometheus.NewMetricsHandler(transport.NewEndpointLabelCollector())
+	metricsHandler, err := prometheus.NewMetricsHandler(commontransport.NewEndpointLabelCollector())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,7 +69,7 @@ func main() {
 	log.Print("Server Exited Properly")
 }
 
-func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
+func createServer(client commonmysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")

@@ -5,26 +5,26 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type binaryUUID uuid.UUID
+type BinaryUUID uuid.UUID
 
-func newUUID() binaryUUID {
-	return binaryUUID(uuid.NewV1())
+func NewUUID() BinaryUUID {
+	return BinaryUUID(uuid.NewV1())
 }
 
-func (uid binaryUUID) Value() (driver.Value, error) {
+func (uid BinaryUUID) Value() (driver.Value, error) {
 	return uuid.UUID(uid).Bytes(), nil
 }
 
-func (uid *binaryUUID) Scan(src interface{}) error {
+func (uid *BinaryUUID) Scan(src interface{}) error {
 	var result uuid.UUID
 	err := result.Scan(src)
-	*uid = binaryUUID(result)
+	*uid = BinaryUUID(result)
 	return err
 }
 
-type nullBinaryUUID uuid.NullUUID
+type NullBinaryUUID uuid.NullUUID
 
-func (uid nullBinaryUUID) Value() (driver.Value, error) {
+func (uid NullBinaryUUID) Value() (driver.Value, error) {
 	if !uid.Valid {
 		return nil, nil
 	}
@@ -32,9 +32,9 @@ func (uid nullBinaryUUID) Value() (driver.Value, error) {
 	return uid.UUID.Bytes(), nil
 }
 
-func (uid *nullBinaryUUID) Scan(src interface{}) error {
+func (uid *NullBinaryUUID) Scan(src interface{}) error {
 	var result uuid.NullUUID
 	err := result.Scan(src)
-	*uid = nullBinaryUUID(result)
+	*uid = NullBinaryUUID(result)
 	return err
 }

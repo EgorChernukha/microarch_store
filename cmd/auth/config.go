@@ -4,7 +4,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
 
-	"store/pkg/auth/infrastructure/mysql"
+	"store/pkg/common/infrastructure/mysql"
 )
 
 func parseEnv() (*config, error) {

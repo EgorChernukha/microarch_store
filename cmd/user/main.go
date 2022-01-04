@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"store/pkg/common/infrastructure/jwt"
+	commonmysql "store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
 
 	"store/pkg/user/app"
@@ -31,12 +32,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	connector := mysql.NewConnector()
+	connector := commonmysql.NewConnector()
 	err = connector.MigrateUp(cnf.dsn(), cnf.MigrationsDir)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = connector.Open(cnf.dsn(), mysql.Config{
+	err = connector.Open(cnf.dsn(), commonmysql.Config{
 		MaxConnections:     cnf.DBMaxConn,
 		ConnectionLifetime: time.Duration(cnf.DBConnectionLifetime) * time.Second,
 	})
@@ -67,7 +68,7 @@ func main() {
 	log.Print("Server Exited Properly")
 }
 
-func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
+func createServer(client commonmysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")

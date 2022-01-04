@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"store/pkg/common/infrastructure/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
@@ -10,12 +11,12 @@ import (
 	"store/pkg/user/app"
 )
 
-func NewUserQueryService(client Client) app.UserQueryService {
+func NewUserQueryService(client mysql.Client) app.UserQueryService {
 	return &userQueryService{client: client}
 }
 
 type userQueryService struct {
-	client Client
+	client mysql.Client
 }
 
 func (u userQueryService) FindUser(id uuid.UUID) (app.UserData, error) {

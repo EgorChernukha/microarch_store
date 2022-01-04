@@ -2,24 +2,27 @@ package mysql
 
 import (
 	"database/sql"
+
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
+
+	"store/pkg/common/infrastructure/mysql"
 
 	"store/pkg/auth/app"
 )
 
-func NewUserRepository(client Client) app.UserRepository {
+func NewUserRepository(client mysql.Client) app.UserRepository {
 	return &userRepository{client: client}
 }
 
 type userRepository struct {
-	client Client
+	client mysql.Client
 }
 
 type sqlxUser struct {
-	ID       binaryUUID `db:"id"`
-	Login    string     `db:"login"`
-	Password string     `db:"password"`
+	ID       mysql.BinaryUUID `db:"id"`
+	Login    string           `db:"login"`
+	Password string           `db:"password"`
 }
 
 func (u *userRepository) Store(user *app.User) error {
@@ -29,7 +32,7 @@ func (u *userRepository) Store(user *app.User) error {
 	ON DUPLICATE KEY UPDATE login=VALUES(login), password=VALUES(password)`
 
 	sqlUser := sqlxUser{
-		ID:       binaryUUID(user.ID),
+		ID:       mysql.BinaryUUID(user.ID),
 		Login:    user.Login,
 		Password: user.Password,
 	}
@@ -40,7 +43,7 @@ func (u *userRepository) Store(user *app.User) error {
 
 func (u *userRepository) Remove(id app.UserID) error {
 	const sqlQuery = `DELETE FROM user_auth WHERE id=?`
-	_, err := u.client.Exec(sqlQuery, binaryUUID(id))
+	_, err := u.client.Exec(sqlQuery, mysql.BinaryUUID(id))
 
 	return errors.WithStack(err)
 }

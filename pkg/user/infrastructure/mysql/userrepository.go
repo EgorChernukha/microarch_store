@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"store/pkg/common/infrastructure/mysql"
 
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -9,16 +10,25 @@ import (
 	"store/pkg/user/domain"
 )
 
-func NewUserRepository(client Client) domain.UserRepository {
+func NewUserRepository(client mysql.Client) domain.UserRepository {
 	return &userRepository{client: client}
 }
 
 type userRepository struct {
-	client Client
+	client mysql.Client
+}
+
+type sqlxUser struct {
+	ID        mysql.BinaryUUID `db:"id"`
+	Login     string           `db:"login"`
+	Firstname string           `db:"firstname"`
+	Lastname  string           `db:"lastname"`
+	Email     string           `db:"email"`
+	Phone     string           `db:"phone"`
 }
 
 func (u *userRepository) NewID() domain.UserID {
-	return domain.UserID(newUUID())
+	return domain.UserID(mysql.NewUUID())
 }
 
 func (u *userRepository) Store(user domain.User) error {
@@ -28,7 +38,7 @@ func (u *userRepository) Store(user domain.User) error {
 	ON DUPLICATE KEY UPDATE firstname=VALUES(firstname), lastname=VALUES(lastname), email=VALUES(email), phone=VALUES(phone)`
 
 	sqlUser := sqlxUser{
-		ID:        binaryUUID(user.ID()),
+		ID:        mysql.BinaryUUID(user.ID()),
 		Login:     user.Login(),
 		Firstname: user.Firstname(),
 		Lastname:  user.Lastname(),
@@ -42,7 +52,7 @@ func (u *userRepository) Store(user domain.User) error {
 
 func (u *userRepository) Remove(user domain.User) error {
 	const sqlQuery = `DELETE FROM user WHERE id=?`
-	_, err := u.client.Exec(sqlQuery, binaryUUID(user.ID()))
+	_, err := u.client.Exec(sqlQuery, mysql.BinaryUUID(user.ID()))
 
 	return errors.WithStack(err)
 }
