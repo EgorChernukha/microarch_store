@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: auth
+  labels:
+    app: auth
+spec:
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: auth
+  endpoints:
+    - interval: 15s
+      port: web
+      path: /monitoring

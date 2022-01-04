@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: billing-secret
+type: Opaque
+data:
+  BILLING_JWT_SECRET: NDJiOTZjYzUtNGM3NC0xMWVjLWJjOWItMDI0MmFjMTEwMDA5
+  BILLING_DB_HOST: bXlzcWwtYmlsbGluZw==
+  BILLING_DB_NAME: YmlsbGluZw==
+  BILLING_DB_USER: YmlsbGluZw==
+  BILLING_DB_PASSWORD: Z0JlLW85ZE5GRg==

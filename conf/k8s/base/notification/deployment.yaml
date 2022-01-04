@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification
+  namespace: otus
+  labels:
+    app: notification
+spec:
+  selector:
+    matchLabels:
+      app: notification
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      containers:
+        - image: echernukha/notification:latest
+          name: notificationcontainer
+          env:
+            - name: NOTIFICATION_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secret
+                  key: NOTIFICATION_JWT_SECRET
+            - name: NOTIFICATION_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secret
+                  key: NOTIFICATION_DB_HOST
+            - name: NOTIFICATION_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secret
+                  key: NOTIFICATION_DB_NAME
+            - name: NOTIFICATION_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secret
+                  key: NOTIFICATION_DB_USER
+            - name: NOTIFICATION_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secret
+                  key: NOTIFICATION_DB_PASSWORD
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8080
+            initialDelaySeconds: 25
+            periodSeconds: 10

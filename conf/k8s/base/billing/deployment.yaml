@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing
+  namespace: otus
+  labels:
+    app: billing
+spec:
+  selector:
+    matchLabels:
+      app: billing
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: billing
+    spec:
+      containers:
+        - image: echernukha/billing:latest
+          name: billingcontainer
+          env:
+            - name: BILLING_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: billing-secret
+                  key: BILLING_JWT_SECRET
+            - name: BILLING_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: billing-secret
+                  key: BILLING_DB_HOST
+            - name: BILLING_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: billing-secret
+                  key: BILLING_DB_NAME
+            - name: BILLING_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: billing-secret
+                  key: BILLING_DB_USER
+            - name: BILLING_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: billing-secret
+                  key: BILLING_DB_PASSWORD
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8080
+            initialDelaySeconds: 25
+            periodSeconds: 10

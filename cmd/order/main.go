@@ -13,16 +13,15 @@ import (
 	"github.com/gorilla/mux"
 
 	"store/pkg/common/infrastructure/jwt"
+	"store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
+	transportcommon "store/pkg/common/infrastructure/transport"
 
-	"store/pkg/user/app"
-	"store/pkg/user/domain"
-	"store/pkg/user/infrastructure/mysql"
-	"store/pkg/user/infrastructure/transport"
+	"store/pkg/order/infrastructure/transport"
 )
 
 const (
-	appID = "user"
+	appID = "order"
 )
 
 func main() {
@@ -44,7 +43,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	metricsHandler, err := prometheus.NewMetricsHandler(transport.NewEndpointLabelCollector())
+	metricsHandler, err := prometheus.NewMetricsHandler(transportcommon.NewEndpointLabelCollector())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,18 +71,13 @@ func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler,
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")
 	metricsHandler.AddCommonMetricsMiddleware(router)
-
-	userRepository := mysql.NewUserRepository(client)
-	userDomainService := domain.NewUserService(userRepository)
-	userService := app.NewUserService(userDomainService)
-	userQueryService := mysql.NewUserQueryService(client)
 	tokenParser := jwt.NewTokenParser(cnf.JWTSecret)
 
-	server := transport.NewServer(router, tokenParser, userService, userQueryService)
+	server := transport.NewServer(router, tokenParser)
 	server.Start()
 
 	return &http.Server{
-		Addr:    ":8000",
+		Addr:    ":8080",
 		Handler: router,
 	}
 }

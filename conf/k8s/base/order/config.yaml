@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: order-secret
+type: Opaque
+data:
+  ORDER_JWT_SECRET: NDJiOTZjYzUtNGM3NC0xMWVjLWJjOWItMDI0MmFjMTEwMDA5
+  ORDER_DB_HOST: bXlzcWwtb3JkZXI=
+  ORDER_DB_NAME: b3JkZXI=
+  ORDER_DB_USER: b3JkZXI=
+  ORDER_DB_PASSWORD: Z0JlLW85ZE5GRg==

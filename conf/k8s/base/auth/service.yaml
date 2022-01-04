@@ -1,23 +1,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: user
-  namespace: otus
-  labels:
-    app: user
-spec:
-  selector:
-    app: user
-  ports:
-  - name: web
-    protocol: TCP
-    port: 8000
-    targetPort: http
-  type: NodePort
----
-apiVersion: v1
-kind: Service
-metadata:
   name: auth
   namespace: otus
   labels:

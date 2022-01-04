@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  namespace: otus
+  labels:
+    app: user
+spec:
+  selector:
+    matchLabels:
+      app: user
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - image: echernukha/user:latest
+          name: usercontainer
+          env:
+            - name: USER_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: user-secret
+                  key: USER_JWT_SECRET
+            - name: USER_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: user-secret
+                  key: USER_DB_HOST
+            - name: USER_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: user-secret
+                  key: USER_DB_NAME
+            - name: USER_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: user-secret
+                  key: USER_DB_USER
+            - name: USER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: user-secret
+                  key: USER_DB_PASSWORD
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8000
+            initialDelaySeconds: 25
+            periodSeconds: 10

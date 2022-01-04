@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"store/pkg/user/infrastructure/jwt"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
+
+	"store/pkg/common/infrastructure/jwt"
 
 	"store/pkg/user/app"
 	"store/pkg/user/domain"
