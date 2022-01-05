@@ -29,16 +29,16 @@ type sqlxUserAccountData struct {
 
 func (u *userAccountQueryService) FindUserAccountByUserID(userID uuid.UUID) (app.UserAccountData, error) {
 	const sqlQuery = `SELECT id, user_id, balance, updated_at FROM user_account WHERE user_id = ?`
-	var sqlUserAccountData sqlxUserAccountData
+	var sqlUserAccount sqlxUserAccountData
 
-	err := u.client.Get(&sqlUserAccountData, sqlQuery, userID.Bytes())
+	err := u.client.Get(&sqlUserAccount, sqlQuery, userID.Bytes())
 	if err == sql.ErrNoRows {
 		return app.UserAccountData{}, app.ErrUserAccountNotExists
 	} else if err != nil {
 		return app.UserAccountData{}, errors.WithStack(err)
 	}
 
-	return sqlxUserAccountDataToUserAccountData(&sqlUserAccountData), nil
+	return sqlxUserAccountDataToUserAccountData(&sqlUserAccount), nil
 }
 
 func (u *userAccountQueryService) ListUserAccounts() ([]app.UserAccountData, error) {
