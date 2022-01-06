@@ -1,0 +1,33 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor User
+participant "Order service"
+participant "Billing service"
+participant "Notification service"
+
+title Создание заказа:
+User -> "Order service": '/order/api/v1/create'
+Activate "Order service"
+note left
+POST <b>/order</b>/api/v1/create
+POST <b>/order</b>/api/v1/cancel
+GET <b>/order</b>/api/v1/status
+GET <b>/order</b>/api/v1/list
+end note
+
+"Order service" -> "Billing service": '/api/v1/withdrawMoney'
+Activate "Billing service"
+"Billing service" --> "Order service": Response
+Deactivate "Billing service"
+
+
+"Order service" -> "Notification service": '/api/v1/notifyOrderCreated'
+Activate "Notification service"
+"Notification service" --> "Order service": Response
+Deactivate "Notification service"
+
+"Order service" --> User: Response
+Deactivate "Order service"
+
+@enduml
