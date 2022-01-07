@@ -130,6 +130,7 @@ helm install mysql-user -f conf/helm/mysql/uservalues.yaml bitnami/mysql --versi
 helm install mysql-order -f conf/helm/mysql/ordervalues.yaml bitnami/mysql --version 8.8.12
 helm install mysql-billing -f conf/helm/mysql/billingvalues.yaml bitnami/mysql --version 8.8.12
 helm install mysql-notification -f conf/helm/mysql/notificationvalues.yaml bitnami/mysql --version 8.8.12
+helm install rabbitmq -f conf/helm/rabbitmq/values.yaml bitnami/rabbitmq --atomic
 
 # monitoring
 helm install prom prometheus-community/kube-prometheus-stack -f ./conf/helm/prometheus/values.yaml --atomic

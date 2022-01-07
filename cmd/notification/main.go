@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"store/pkg/common/infrastructure/amqp"
+	appintegrationevent "store/pkg/notification/app/integrationevent"
+	"store/pkg/notification/infrastructure/integrationevent"
 	"syscall"
 	"time"
 
@@ -47,6 +50,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	amqpConnection := amqp.NewAMQPConnection(&amqp.Config{Host: cnf.AMQPHost, User: cnf.AMQPUser, Password: cnf.AMQPPassword})
+	integrationEventTransport := integrationevent.NewIntegrationEventsTransport(false)
+	amqpConnection.AddChannel(integrationEventTransport)
+	eventHandler := integrationevent.NewIntegrationEventHandler([]appintegrationevent.Handler{appintegrationevent.NewHandler()})
+	integrationEventTransport.SetHandler(eventHandler)
+
+	err = amqpConnection.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// noinspection GoUnhandledErrorResult
+	defer amqpConnection.Stop()
 
 	srv := createServer(connector.Client(), metricsHandler, cnf)
 

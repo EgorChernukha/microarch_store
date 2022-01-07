@@ -23,8 +23,10 @@ type config struct {
 	DBPassword           string `envconfig:"db_password"`
 	DBMaxConn            int    `envconfig:"db_max_conn" default:"0"`
 	DBConnectionLifetime int    `envconfig:"db_conn_lifetime" default:"0"`
-
-	MigrationsDir string `envconfig:"migrations_dir"`
+	AMQPHost             string `envconfig:"amqp_host"`
+	AMQPUser             string `envconfig:"amqp_user" default:"guest"`
+	AMQPPassword         string `envconfig:"amqp_password" default:"guest"`
+	MigrationsDir        string `envconfig:"migrations_dir"`
 }
 
 func (c *config) dsn() mysql.DSN {
