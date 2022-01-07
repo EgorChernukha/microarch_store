@@ -152,8 +152,17 @@ func (s *server) listOrdersEndpoint(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 
-	_ = tokenData
+	userID, err := uuid.FromString(tokenData.UserID())
+	if err != nil {
+		return err
+	}
 
+	userOrdersData, err := s.userOrderQueryService.ListUserOrdersByUserIDs(userID)
+	if err != nil {
+		return err
+	}
+
+	writeResponse(w, userOrdersData)
 	return nil
 }
 
