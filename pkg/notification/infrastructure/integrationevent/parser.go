@@ -10,18 +10,25 @@ import (
 )
 
 type eventBody struct {
-	Type      string           `json:"type"`
-	AccountID string           `json:"account_id"`
-	Payload   *json.RawMessage `json:"payload"`
+	Type    string           `json:"type"`
+	Payload *json.RawMessage `json:"payload"`
 }
 
-type userRegisteredMessage struct {
-	UserID       string `json:"user_id"`
-	DepartmentID string `json:"department_id"`
+type userOrderPaymentSucceeded struct {
+	UserID  string `json:"user_id"`
+	OrderID string `json:"order_id"`
+	Email   string `json:"email"`
+}
+
+type userOrderPaymentFailed struct {
+	UserID  string `json:"user_id"`
+	OrderID string `json:"order_id"`
+	Email   string `json:"email"`
 }
 
 const (
-	TypeUserRegistered = "user.user_registered"
+	TypeUserOrderPaymentSucceeded = "user_order.payment_succeeded"
+	TypeUserOrderPaymentFailed    = "user_order.payment_failed"
 )
 
 func (h *handler) parseClientMessage(msg string) (integrationevent.IntegrationEvent, error) {
@@ -31,18 +38,20 @@ func (h *handler) parseClientMessage(msg string) (integrationevent.IntegrationEv
 		return nil, errors.WithStack(err)
 	}
 	switch t := body.Type; t {
-	case TypeUserRegistered:
-		return parseUserRegisteredMessage(body)
+	case TypeUserOrderPaymentSucceeded:
+		return parseUserOrderPaymentSucceeded(body)
+	case TypeUserOrderPaymentFailed:
+		return parseUserOrderPaymentFailed(body)
 	default:
 		return nil, nil
 	}
 }
 
-func parseUserRegisteredMessage(body eventBody) (integrationevent.IntegrationEvent, error) {
+func parseUserOrderPaymentSucceeded(body eventBody) (integrationevent.IntegrationEvent, error) {
 	if body.Payload == nil {
 		return nil, errors.New("failed to parse user registered message: no payload")
 	}
-	var msg userRegisteredMessage
+	var msg userOrderPaymentSucceeded
 	err := json.Unmarshal(*body.Payload, &msg)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -51,6 +60,23 @@ func parseUserRegisteredMessage(body eventBody) (integrationevent.IntegrationEve
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	departmentID, err := uuid.FromString(msg.DepartmentID)
-	return integrationevent.NewUserRegistered(body.AccountID, userID, departmentID), err
+	orderID, err := uuid.FromString(msg.OrderID)
+	return integrationevent.NewUserOrderPaymentSucceeded(userID, orderID, msg.Email), err
+}
+
+func parseUserOrderPaymentFailed(body eventBody) (integrationevent.IntegrationEvent, error) {
+	if body.Payload == nil {
+		return nil, errors.New("failed to parse user registered message: no payload")
+	}
+	var msg userOrderPaymentFailed
+	err := json.Unmarshal(*body.Payload, &msg)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	userID, err := uuid.FromString(msg.UserID)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	orderID, err := uuid.FromString(msg.OrderID)
+	return integrationevent.NewUserOrderPaymentFailed(userID, orderID, msg.Email), err
 }

@@ -6,20 +6,23 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"store/pkg/common/infrastructure/amqp"
-	appintegrationevent "store/pkg/notification/app/integrationevent"
-	"store/pkg/notification/infrastructure/integrationevent"
 	"syscall"
 	"time"
 
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 
+	"store/pkg/common/infrastructure/amqp"
 	"store/pkg/common/infrastructure/jwt"
-	"store/pkg/common/infrastructure/mysql"
+	commonmysql "store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
 	transportcommon "store/pkg/common/infrastructure/transport"
 
+	"store/pkg/notification/app"
+	appintegrationevent "store/pkg/notification/app/integrationevent"
+	"store/pkg/notification/domain"
+	"store/pkg/notification/infrastructure/integrationevent"
+	"store/pkg/notification/infrastructure/mysql"
 	"store/pkg/notification/infrastructure/transport"
 )
 
@@ -33,12 +36,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	connector := mysql.NewConnector()
+	connector := commonmysql.NewConnector()
 	err = connector.MigrateUp(cnf.dsn(), cnf.MigrationsDir)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = connector.Open(cnf.dsn(), mysql.Config{
+	err = connector.Open(cnf.dsn(), commonmysql.Config{
 		MaxConnections:     cnf.DBMaxConn,
 		ConnectionLifetime: time.Duration(cnf.DBConnectionLifetime) * time.Second,
 	})
@@ -51,10 +54,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	userNotificationRepository := mysql.NewUserNotificationRepository(connector.Client())
+	userNotificationDomainService := domain.NewUserNotificationService(userNotificationRepository)
+	userNotificationAppService := app.NewUserNotificationService(userNotificationDomainService)
+	userNotificationQueryService := mysql.NewUserNotificationQueryService(connector.Client())
+
 	amqpConnection := amqp.NewAMQPConnection(&amqp.Config{Host: cnf.AMQPHost, User: cnf.AMQPUser, Password: cnf.AMQPPassword})
 	integrationEventTransport := integrationevent.NewIntegrationEventsTransport(false)
 	amqpConnection.AddChannel(integrationEventTransport)
-	eventHandler := integrationevent.NewIntegrationEventHandler([]appintegrationevent.Handler{appintegrationevent.NewHandler()})
+	eventHandler := integrationevent.NewIntegrationEventHandler([]appintegrationevent.Handler{appintegrationevent.NewHandler(userNotificationAppService)})
 	integrationEventTransport.SetHandler(eventHandler)
 
 	err = amqpConnection.Start()
@@ -64,7 +72,7 @@ func main() {
 	// noinspection GoUnhandledErrorResult
 	defer amqpConnection.Stop()
 
-	srv := createServer(connector.Client(), metricsHandler, cnf)
+	srv := createServer(userNotificationQueryService, metricsHandler, cnf)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -82,14 +90,14 @@ func main() {
 	log.Print("Server Exited Properly")
 }
 
-func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
+func createServer(userNotificationQueryService app.UserNotificationQueryService, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")
 	metricsHandler.AddCommonMetricsMiddleware(router)
 	tokenParser := jwt.NewTokenParser(cnf.JWTSecret)
 
-	server := transport.NewServer(router, tokenParser)
+	server := transport.NewServer(router, tokenParser, userNotificationQueryService)
 	server.Start()
 
 	return &http.Server{

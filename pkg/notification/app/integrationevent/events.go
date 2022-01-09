@@ -5,19 +5,24 @@ import (
 )
 
 type IntegrationEvent interface {
-	AccountID() string
 }
 
-type UserRegistered struct {
-	accountID    string
-	userID       uuid.UUID
-	departmentID uuid.UUID
+type UserOrderPaymentSucceeded struct {
+	userID  uuid.UUID
+	orderID uuid.UUID
+	email   string
 }
 
-func (event UserRegistered) AccountID() string {
-	return event.accountID
+func NewUserOrderPaymentSucceeded(userID, orderID uuid.UUID, email string) UserOrderPaymentSucceeded {
+	return UserOrderPaymentSucceeded{userID, orderID, email}
 }
 
-func NewUserRegistered(accountID string, userID, departmentID uuid.UUID) UserRegistered {
-	return UserRegistered{accountID, userID, departmentID}
+type UserOrderPaymentFailed struct {
+	userID  uuid.UUID
+	orderID uuid.UUID
+	email   string
+}
+
+func NewUserOrderPaymentFailed(userID, orderID uuid.UUID, email string) UserOrderPaymentFailed {
+	return UserOrderPaymentFailed{userID, orderID, email}
 }

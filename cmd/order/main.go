@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	mysql2 "store/pkg/order/infrastructure/mysql"
 	"syscall"
 	"time"
 
@@ -73,7 +74,9 @@ func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler,
 	metricsHandler.AddCommonMetricsMiddleware(router)
 	tokenParser := jwt.NewTokenParser(cnf.JWTSecret)
 
-	server := transport.NewServer(router, tokenParser)
+	userOrderQueryService := mysql2.NewUserOrderQueryService(client)
+
+	server := transport.NewServer(router, tokenParser, userOrderQueryService)
 	server.Start()
 
 	return &http.Server{
