@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"store/pkg/billing/infrastructure/transport"
 	"syscall"
 	"time"
 
@@ -14,9 +13,12 @@ import (
 	"github.com/gorilla/mux"
 
 	"store/pkg/common/infrastructure/jwt"
-	"store/pkg/common/infrastructure/mysql"
+	commonmysql "store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
 	transportcommon "store/pkg/common/infrastructure/transport"
+
+	"store/pkg/billing/infrastructure/mysql"
+	"store/pkg/billing/infrastructure/transport"
 )
 
 const (
@@ -29,12 +31,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	connector := mysql.NewConnector()
+	connector := commonmysql.NewConnector()
 	err = connector.MigrateUp(cnf.dsn(), cnf.MigrationsDir)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = connector.Open(cnf.dsn(), mysql.Config{
+	err = connector.Open(cnf.dsn(), commonmysql.Config{
 		MaxConnections:     cnf.DBMaxConn,
 		ConnectionLifetime: time.Duration(cnf.DBConnectionLifetime) * time.Second,
 	})
@@ -65,14 +67,16 @@ func main() {
 	log.Print("Server Exited Properly")
 }
 
-func createServer(client mysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
+func createServer(client commonmysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")
 	metricsHandler.AddCommonMetricsMiddleware(router)
 	tokenParser := jwt.NewTokenParser(cnf.JWTSecret)
 
-	server := transport.NewServer(router, tokenParser)
+	userAccountQueryService := mysql.NewUserAccountQueryService(client)
+
+	server := transport.NewServer(router, tokenParser, userAccountQueryService)
 	server.Start()
 
 	return &http.Server{

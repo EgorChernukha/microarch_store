@@ -18,7 +18,7 @@ const PathPrefix = "/api/v1/"
 const authTokenHeader = "X-Auth-Token"
 
 const (
-	listUserNotificationsEndpoint = PathPrefix + "list"
+	listUserNotificationsEndpoint = PathPrefix + "notification/list"
 )
 
 const (
