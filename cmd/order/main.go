@@ -12,11 +12,14 @@ import (
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 
+	"store/pkg/common/infrastructure/amqp"
 	"store/pkg/common/infrastructure/jwt"
 	commonmysql "store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
 	transportcommon "store/pkg/common/infrastructure/transport"
 
+	appintegrationevent "store/pkg/order/app/integrationevent"
+	"store/pkg/order/infrastructure/integrationevent"
 	"store/pkg/order/infrastructure/mysql"
 	"store/pkg/order/infrastructure/transport"
 )
@@ -48,6 +51,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	amqpConnection := amqp.NewAMQPConnection(&amqp.Config{Host: cnf.AMQPHost, User: cnf.AMQPUser, Password: cnf.AMQPPassword})
+	integrationEventTransport := integrationevent.NewIntegrationEventsTransport(false)
+	amqpConnection.AddChannel(integrationEventTransport)
+	eventHandler := integrationevent.NewIntegrationEventHandler([]appintegrationevent.Handler{appintegrationevent.NewHandler()})
+	integrationEventTransport.SetHandler(eventHandler)
+
+	err = amqpConnection.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// noinspection GoUnhandledErrorResult
+	defer amqpConnection.Stop()
 
 	srv := createServer(connector.Client(), metricsHandler, cnf)
 
