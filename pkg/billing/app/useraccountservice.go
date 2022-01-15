@@ -8,6 +8,8 @@ import (
 
 type UserAccountService interface {
 	CreateAccount(userID uuid.UUID) error
+	TopUpAccount(userID uuid.UUID, amount float64) error
+	ProcessPayment(userID uuid.UUID, amount float64) error
 }
 
 func NewUserAccountService(domainService domain.UserAccountService) UserAccountService {
@@ -16,6 +18,14 @@ func NewUserAccountService(domainService domain.UserAccountService) UserAccountS
 
 type userAccountService struct {
 	domainService domain.UserAccountService
+}
+
+func (u *userAccountService) ProcessPayment(userID uuid.UUID, amount float64) error {
+	return u.domainService.ProcessPayment(domain.UserID(userID), amount)
+}
+
+func (u *userAccountService) TopUpAccount(userID uuid.UUID, amount float64) error {
+	return u.domainService.TopUpAccount(domain.UserID(userID), amount)
 }
 
 func (u *userAccountService) CreateAccount(userID uuid.UUID) error {

@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"store/pkg/billing/app"
+	"store/pkg/billing/domain"
 	"store/pkg/billing/infrastructure/integrationevent"
 	"store/pkg/billing/infrastructure/mysql"
 	"store/pkg/billing/infrastructure/transport"
@@ -99,10 +100,12 @@ func createServer(connector commonmysql.Connector, streamsEnvironment streams.En
 	if err := commonintegrationevent.StartEventConsumer(streamsEnvironment, eventHandler); err != nil {
 		log.Fatal(err)
 	}
-
+	userAccountRepository := mysql.NewUserAccountRepository(connector.Client())
+	userAccountDomainService := domain.NewUserAccountService(userAccountRepository)
+	userAccountAppService := app.NewUserAccountService(userAccountDomainService)
 	userAccountQueryService := mysql.NewUserAccountQueryService(connector.Client())
 
-	server := transport.NewServer(router, tokenParser, userAccountQueryService)
+	server := transport.NewServer(router, tokenParser, userAccountAppService, userAccountQueryService)
 	server.Start()
 
 	return &http.Server{

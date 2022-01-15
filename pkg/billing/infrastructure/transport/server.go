@@ -2,21 +2,25 @@ package transport
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"store/pkg/billing/app"
 
+	"store/pkg/billing/app"
 	"store/pkg/common/infrastructure/jwt"
 )
 
 const PathPrefix = "/api/v1/"
+const PathPrefixInternal = "/internal/api/v1/"
 const authTokenHeader = "X-Auth-Token"
 
 const (
-	getUserAccountEndpoint = PathPrefix + "account"
+	accountEndpoint = PathPrefix + "account"
+	paymentEndpoint = PathPrefixInternal + "payment"
 )
 
 const (
@@ -31,10 +35,11 @@ type Server interface {
 	Start()
 }
 
-func NewServer(router *mux.Router, tokenParser jwt.TokenParser, userAccountQueryService app.UserAccountQueryService) Server {
+func NewServer(router *mux.Router, tokenParser jwt.TokenParser, userAccountService app.UserAccountService, userAccountQueryService app.UserAccountQueryService) Server {
 	return &server{
 		router:                  router,
 		tokenParser:             tokenParser,
+		userAccountService:      userAccountService,
 		userAccountQueryService: userAccountQueryService,
 	}
 }
@@ -42,6 +47,7 @@ func NewServer(router *mux.Router, tokenParser jwt.TokenParser, userAccountQuery
 type server struct {
 	router                  *mux.Router
 	tokenParser             jwt.TokenParser
+	userAccountService      app.UserAccountService
 	userAccountQueryService app.UserAccountQueryService
 }
 
@@ -50,8 +56,19 @@ type errorInfo struct {
 	Message string `json:"message"`
 }
 
+type topUpAccountInfo struct {
+	Amount float64 `json:"amount"`
+}
+
+type paymentInfo struct {
+	UserID string  `json:"userId"`
+	Amount float64 `json:"amount"`
+}
+
 func (s *server) Start() {
-	s.router.Methods(http.MethodGet).Path(getUserAccountEndpoint).Handler(s.makeHandlerFunc(s.getUserAccountEndpoint))
+	s.router.Methods(http.MethodGet).Path(accountEndpoint).Handler(s.makeHandlerFunc(s.getUserAccountEndpoint))
+	s.router.Methods(http.MethodPost).Path(accountEndpoint).Handler(s.makeHandlerFunc(s.topUpAccountEndpoint))
+	s.router.Methods(http.MethodPost).Path(paymentEndpoint).Handler(s.makeHandlerFunc(s.getUserAccountEndpoint))
 }
 
 func (s *server) makeHandlerFunc(handler func(http.ResponseWriter, *http.Request) error) http.HandlerFunc {
@@ -99,6 +116,56 @@ func (s *server) getUserAccountEndpoint(w http.ResponseWriter, r *http.Request) 
 	}
 
 	writeResponse(w, userAccountData)
+	return nil
+}
+
+func (s *server) topUpAccountEndpoint(w http.ResponseWriter, r *http.Request) error {
+	tokenData, err := s.extractAuthorizationData(r)
+	if err != nil {
+		return err
+	}
+
+	userID, err := uuid.FromString(tokenData.UserID())
+	if err != nil {
+		return err
+	}
+
+	var info topUpAccountInfo
+	bytesBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(bytesBody, &info); err != nil {
+		return err
+	}
+
+	if err = s.userAccountService.TopUpAccount(userID, info.Amount); err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+func (s *server) processPaymentEndpoint(w http.ResponseWriter, r *http.Request) error {
+	var info paymentInfo
+	bytesBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(bytesBody, &info); err != nil {
+		return err
+	}
+	userID, err := uuid.FromString(info.UserID)
+	if err != nil {
+		return err
+	}
+
+	if err = s.userAccountService.ProcessPayment(userID, info.Amount); err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
 
