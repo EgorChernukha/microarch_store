@@ -51,10 +51,6 @@ spec:
                   key: ORDER_DB_PASSWORD
             - name: ORDER_AMQP_HOST
               value: localhost:5552
-              valueFrom:
-                secretKeyRef:
-                  name: order-secret
-                  key: ORDER_AMQP_USER
             - name: ORDER_AMQP_USER
               valueFrom:
                 secretKeyRef:

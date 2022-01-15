@@ -51,10 +51,6 @@ spec:
                   key: BILLING_DB_PASSWORD
             - name: BILLING_AMQP_HOST
               value: localhost:5552
-              valueFrom:
-                secretKeyRef:
-                  name: billing-secret
-                  key: BILLING_AMQP_USER
             - name: BILLING_AMQP_USER
               valueFrom:
                 secretKeyRef:
