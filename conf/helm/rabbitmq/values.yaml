@@ -1,3 +1,15 @@
 auth:
-  username: store
-  password: gBe-o9dNFF
+  username: rmq_user
+  password: rmq_pwd
+  erlangCookie: auth_erlang_cookie
+extraPlugins: "rabbitmq_stream,rabbitmq_stream_management "
+extraContainerPorts:
+  - name: stream-port
+    containerPort: 5552
+service:
+  type: NodePort
+  managerNodePort: 30672
+  extraPorts:
+    - name: stream
+      port: 5552
+      targetPort: 5552

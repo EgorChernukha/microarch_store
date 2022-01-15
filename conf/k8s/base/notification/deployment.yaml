@@ -49,6 +49,22 @@ spec:
                 secretKeyRef:
                   name: notification-secret
                   key: NOTIFICATION_DB_PASSWORD
+            - name: NOTIFICATION_AMQP_HOST
+              value: localhost:5552
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secret
+                  key: NOTIFICATION_AMQP_USER
+            - name: NOTIFICATION_AMQP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secret
+                  key: NOTIFICATION_AMQP_USER
+            - name: NOTIFICATION_AMQP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secret
+                  key: NOTIFICATION_AMQP_PASSWORD
           ports:
             - name: http
               containerPort: 8080
