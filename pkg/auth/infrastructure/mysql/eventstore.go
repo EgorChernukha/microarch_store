@@ -69,7 +69,7 @@ func (store *eventStore) FindByUIDs(uids []integrationevent.EventUID) ([]storede
 }
 
 func (store *eventStore) FindAllUnconfirmedBefore(time time.Time) ([]storedevent.Event, error) {
-	const sqlQuery = `SELECT id, uid, type, body, confirmed FROM stored_event WHERE confirmed = FALSE AND created_at < $1`
+	const sqlQuery = `SELECT id, uid, type, body, confirmed FROM stored_event WHERE confirmed = FALSE AND created_at < ?`
 
 	var events []*sqlxStoredEvent
 	err := store.client.Select(&events, sqlQuery, time)
@@ -98,7 +98,7 @@ func sqlxStoredEventToEvent(event *sqlxStoredEvent) storedevent.Event {
 
 type sqlxStoredEvent struct {
 	ID        uint64           `db:"id"`
-	UID       mysql.BinaryUUID `db:"Uid"`
+	UID       mysql.BinaryUUID `db:"uid"`
 	Type      string           `db:"type"`
 	Body      string           `db:"body"`
 	Confirmed bool             `db:"confirmed"`
