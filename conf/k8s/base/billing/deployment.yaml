@@ -50,7 +50,9 @@ spec:
                   name: billing-secret
                   key: BILLING_DB_PASSWORD
             - name: BILLING_AMQP_HOST
-              value: localhost:5552
+              value: "rabbitmq"
+            - name: BILLING_AMQP_PORT
+              value: "5552"
             - name: BILLING_AMQP_USER
               valueFrom:
                 secretKeyRef:

@@ -10,15 +10,13 @@ type OrderID uuid.UUID
 type UserNotification interface {
 	UserID() UserID
 	OrderID() OrderID
-	Email() string
 	Message() string
 }
 
-func NewUserNotification(userID UserID, orderID OrderID, email, message string) UserNotification {
+func NewUserNotification(userID UserID, orderID OrderID, message string) UserNotification {
 	return &userNotification{
 		userID:  userID,
 		orderID: orderID,
-		email:   email,
 		message: message,
 	}
 }
@@ -26,7 +24,6 @@ func NewUserNotification(userID UserID, orderID OrderID, email, message string) 
 type userNotification struct {
 	userID  UserID
 	orderID OrderID
-	email   string
 	message string
 }
 
@@ -36,10 +33,6 @@ func (n *userNotification) UserID() UserID {
 
 func (n *userNotification) OrderID() OrderID {
 	return n.orderID
-}
-
-func (n *userNotification) Email() string {
-	return n.email
 }
 
 func (n *userNotification) Message() string {

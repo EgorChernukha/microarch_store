@@ -9,7 +9,6 @@ import (
 type UserNotificationData struct {
 	UserID    uuid.UUID `json:"user_id"`
 	OrderID   uuid.UUID `json:"order_id"`
-	Email     string    `json:"email"`
 	Message   string    `json:"message"`
 	CreatedAt time.Time `json:"created_at"`
 }

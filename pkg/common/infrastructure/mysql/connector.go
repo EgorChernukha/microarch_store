@@ -20,8 +20,7 @@ import (
 )
 
 const (
-	dbDriverName      = "mysql"
-	shardedFolderName = "sharded"
+	dbDriverName = "mysql"
 )
 
 type DSN struct {
@@ -45,6 +44,27 @@ type Client interface {
 	NamedExec(query string, arg interface{}) (sql.Result, error)
 }
 
+type Transaction interface {
+	Client
+	Commit() error
+	Rollback() error
+}
+
+type TransactionalClient interface {
+	Client
+	BeginTransaction() (Transaction, error)
+}
+
+type DBClient interface {
+	TransactionalClient
+	Close() error
+	Ping() error
+}
+
+func NewClient(db *sqlx.DB) DBClient {
+	return &client{DB: db}
+}
+
 func (dsn *DSN) String() string {
 	return fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true", dsn.User, dsn.Password, dsn.Host, dsn.Database)
 }
@@ -58,7 +78,7 @@ type Config struct {
 type Connector interface {
 	Open(dsn DSN, cfg Config) error
 	MigrateUp(dsn DSN, migrationsDir string) error
-	Client() Client
+	Client() TransactionalClient
 	Close() error
 }
 
@@ -67,7 +87,7 @@ func NewConnector() Connector {
 }
 
 type connector struct {
-	db *sqlx.DB
+	db DBClient
 }
 
 type dbClient interface {
@@ -77,9 +97,21 @@ type dbClient interface {
 	Close() error
 }
 
+type client struct {
+	*sqlx.DB
+}
+
+func (c *client) BeginTransaction() (Transaction, error) {
+	return c.Beginx()
+}
+
 func (c *connector) Open(dsn DSN, cfg Config) error {
 	var err error
-	c.db, err = openDBX(dsn, cfg)
+	db, err := openDBX(dsn, cfg)
+	if err != nil {
+		return errors.Wrap(err, "failed to open database")
+	}
+	c.db = NewClient(db)
 	return errors.WithStack(err)
 }
 
@@ -104,7 +136,7 @@ func (c *connector) MigrateUp(dsn DSN, migrationsDir string) (err error) {
 	return errors.Wrap(err, "failed to migrate")
 }
 
-func (c *connector) Client() Client {
+func (c *connector) Client() TransactionalClient {
 	return c.db
 }
 

@@ -21,13 +21,12 @@ type userNotificationQueryService struct {
 type sqlxUserNotificationData struct {
 	UserID    mysql.BinaryUUID `db:"user_id"`
 	OrderID   mysql.BinaryUUID `db:"order_id"`
-	Email     string           `db:"email"`
 	Message   string           `db:"message"`
 	CreatedAt time.Time        `db:"created_at"`
 }
 
 func (s *userNotificationQueryService) ListUserNotifications(userID uuid.UUID) ([]app.UserNotificationData, error) {
-	const sqlQuery = `SELECT user_id, order_id, email, message, created_at FROM user_notification WHERE user_id = ?`
+	const sqlQuery = `SELECT user_id, order_id, message, created_at FROM user_notification WHERE user_id = ?`
 
 	var userNotifications []*sqlxUserNotificationData
 	err := s.client.Select(&userNotifications, sqlQuery, userID.Bytes())
@@ -46,7 +45,6 @@ func sqlxUserNotificationDataToUserNotificationData(userNotification *sqlxUserNo
 	return app.UserNotificationData{
 		UserID:    uuid.UUID(userNotification.UserID),
 		OrderID:   uuid.UUID(userNotification.OrderID),
-		Email:     userNotification.Email,
 		Message:   userNotification.Message,
 		CreatedAt: userNotification.CreatedAt,
 	}

@@ -19,19 +19,17 @@ type userNotificationRepository struct {
 type sqlxUserNotification struct {
 	UserID  mysql.BinaryUUID `db:"user_id"`
 	OrderID mysql.BinaryUUID `db:"order_id"`
-	Email   string           `db:"email"`
 	Message string           `db:"message"`
 }
 
 func (r *userNotificationRepository) Store(userNotification domain.UserNotification) error {
 	const sqlQuery = `INSERT INTO user_notification
-	(user_id, order_id, email, message)
-	VALUES (:user_id, :order_id, :email, :message)`
+	(user_id, order_id, message)
+	VALUES (:user_id, :order_id, :message)`
 
 	sqlUserNotification := sqlxUserNotification{
 		UserID:  mysql.BinaryUUID(userNotification.UserID()),
 		OrderID: mysql.BinaryUUID(userNotification.OrderID()),
-		Email:   userNotification.Email(),
 		Message: userNotification.Message(),
 	}
 

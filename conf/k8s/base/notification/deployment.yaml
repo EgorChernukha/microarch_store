@@ -50,7 +50,9 @@ spec:
                   name: notification-secret
                   key: NOTIFICATION_DB_PASSWORD
             - name: NOTIFICATION_AMQP_HOST
-              value: localhost:5552
+              value: "rabbitmq"
+            - name: NOTIFICATION_AMQP_PORT
+              value: "5552"
             - name: NOTIFICATION_AMQP_USER
               valueFrom:
                 secretKeyRef:

@@ -50,7 +50,9 @@ spec:
                   name: order-secret
                   key: ORDER_DB_PASSWORD
             - name: ORDER_AMQP_HOST
-              value: localhost:5552
+              value: "rabbitmq"
+            - name: ORDER_AMQP_PORT
+              value: "5552"
             - name: ORDER_AMQP_USER
               valueFrom:
                 secretKeyRef:

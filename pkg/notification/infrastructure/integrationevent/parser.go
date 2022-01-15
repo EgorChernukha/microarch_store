@@ -6,77 +6,84 @@ import (
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"store/pkg/notification/app/integrationevent"
+	"store/pkg/common/app/integrationevent"
+	"store/pkg/notification/app"
 )
 
-type eventBody struct {
-	Type    string           `json:"type"`
-	Payload *json.RawMessage `json:"payload"`
+const typeOrderConfirmed = "order.order_confirmed"
+const typeOrderRejected = "order.order_rejected"
+
+func NewEventParser() app.IntegrationEventParser {
+	return eventParser{}
 }
 
-type userOrderPaymentSucceeded struct {
-	UserID  string `json:"user_id"`
-	OrderID string `json:"order_id"`
-	Email   string `json:"email"`
+type eventParser struct {
 }
 
-type userOrderPaymentFailed struct {
-	UserID  string `json:"user_id"`
-	OrderID string `json:"order_id"`
-	Email   string `json:"email"`
-}
-
-const (
-	TypeUserOrderPaymentSucceeded = "user_order.payment_succeeded"
-	TypeUserOrderPaymentFailed    = "user_order.payment_failed"
-)
-
-func (h *handler) parseClientMessage(msg string) (integrationevent.IntegrationEvent, error) {
-	var body eventBody
-	err := json.Unmarshal([]byte(msg), &body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	switch t := body.Type; t {
-	case TypeUserOrderPaymentSucceeded:
-		return parseUserOrderPaymentSucceeded(body)
-	case TypeUserOrderPaymentFailed:
-		return parseUserOrderPaymentFailed(body)
+func (e eventParser) ParseIntegrationEvent(event integrationevent.EventData) (app.UserEvent, error) {
+	switch event.Type {
+	case typeOrderConfirmed:
+		return parseOrderConfirmedEvent(event.Body)
+	case typeOrderRejected:
+		return parseOrderRejectedEvent(event.Body)
 	default:
 		return nil, nil
 	}
 }
 
-func parseUserOrderPaymentSucceeded(body eventBody) (integrationevent.IntegrationEvent, error) {
-	if body.Payload == nil {
-		return nil, errors.New("failed to parse user registered message: no payload")
-	}
-	var msg userOrderPaymentSucceeded
-	err := json.Unmarshal(*body.Payload, &msg)
+func parseOrderConfirmedEvent(strBody string) (app.UserEvent, error) {
+	body, err := parseOrderEvent(strBody)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
-	userID, err := uuid.FromString(msg.UserID)
+
+	userID, err := uuid.FromString(body.UserID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
-	orderID, err := uuid.FromString(msg.OrderID)
-	return integrationevent.NewUserOrderPaymentSucceeded(userID, orderID, msg.Email), err
+
+	orderID, err := uuid.FromString(body.OrderID)
+	if err != nil {
+		return nil, err
+	}
+
+	return app.NewOrderConfirmedEvent(userID, orderID), nil
 }
 
-func parseUserOrderPaymentFailed(body eventBody) (integrationevent.IntegrationEvent, error) {
-	if body.Payload == nil {
-		return nil, errors.New("failed to parse user registered message: no payload")
-	}
-	var msg userOrderPaymentFailed
-	err := json.Unmarshal(*body.Payload, &msg)
+func parseOrderRejectedEvent(strBody string) (app.UserEvent, error) {
+	body, err := parseOrderEvent(strBody)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
-	userID, err := uuid.FromString(msg.UserID)
+
+	userID, err := uuid.FromString(body.UserID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
-	orderID, err := uuid.FromString(msg.OrderID)
-	return integrationevent.NewUserOrderPaymentFailed(userID, orderID, msg.Email), err
+
+	orderID, err := uuid.FromString(body.OrderID)
+	if err != nil {
+		return nil, err
+	}
+
+	return app.NewOrderRejectedEvent(userID, orderID), nil
+}
+
+func parseOrderEvent(strBody string) (orderEventBody, error) {
+	var body orderEventBody
+	err := json.Unmarshal([]byte(strBody), &body)
+	if err != nil {
+		return body, errors.WithStack(err)
+	}
+	_, err = uuid.FromString(body.UserID)
+	if err != nil {
+		return body, errors.WithStack(err)
+	}
+	_, err = uuid.FromString(body.OrderID)
+	return body, errors.WithStack(err)
+}
+
+type orderEventBody struct {
+	OrderID string `json:"order_id"`
+	UserID  string `json:"user_id"`
 }
