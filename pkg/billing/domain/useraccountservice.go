@@ -1,6 +1,8 @@
 package domain
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
 type UserAccountService interface {
 	CreateAccount(userID UserID) error
@@ -39,6 +41,10 @@ func (u *userAccountService) ProcessPayment(userID UserID, amount float64) error
 		return err
 	}
 
-	account.Withdraw(amount)
+	err = account.Withdraw(amount)
+	if err != nil {
+		return err
+	}
+
 	return u.repository.Store(account)
 }

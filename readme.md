@@ -70,7 +70,7 @@ newman run ./data/lab-5.tests.postman_collection.json
 ```
 
 
-Домашнее задание 6:
+Домашнее задание 7:
 ```shell
 # Настройка окружения
 kubectl apply -f ./conf/k8s/base/namespace.yaml
@@ -83,10 +83,10 @@ helm install mysql-order -f conf/helm/mysql/ordervalues.yaml bitnami/mysql --ver
 helm install mysql-billing -f conf/helm/mysql/billingvalues.yaml bitnami/mysql --version 8.8.12
 helm install mysql-notification -f conf/helm/mysql/notificationvalues.yaml bitnami/mysql --version 8.8.12
 helm install rabbitmq -f conf/helm/rabbitmq/values.yaml bitnami/rabbitmq --atomic
+helm install nginx ingress-nginx/ingress-nginx -f ./conf/helm/ingress-nginx/values.yaml --atomic
 
 # monitoring
 helm install prom prometheus-community/kube-prometheus-stack -f ./conf/helm/prometheus/values.yaml --atomic
-helm install nginx ingress-nginx/ingress-nginx -f ./conf/helm/ingress-nginx/values.yaml --atomic
 
 #app
 kubectl apply -f ./conf/k8s/base/. --recursive

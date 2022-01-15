@@ -1,6 +1,6 @@
 CREATE TABLE `user_order`
 (
-    `id`         MEDIUMINT      NOT NULL AUTO_INCREMENT,
+    `id`         BINARY(16)     NOT NULL,
     `user_id`    BINARY(16)     NOT NULL,
     `order_id`   BINARY(16)     NOT NULL,
     `price`      DECIMAL(10, 2) NOT NULL DEFAULT 0,

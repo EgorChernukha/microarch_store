@@ -36,6 +36,7 @@ func main() {
 	}
 
 	connector := commonmysql.NewConnector()
+	defer connector.Close()
 	err = connector.MigrateUp(cnf.dsn(), cnf.MigrationsDir)
 	if err != nil {
 		log.Fatal(err)

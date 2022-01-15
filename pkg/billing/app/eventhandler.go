@@ -63,5 +63,7 @@ func handleUserRegisteredEvent(provider RepositoryProvider, e userRegisteredEven
 	domainService := domain.NewUserAccountService(provider.UserAccountRepository())
 	appService := NewUserAccountService(domainService)
 
-	return appService.CreateAccount(e.UserID())
+	err := appService.CreateAccount(e.UserID())
+
+	return err
 }

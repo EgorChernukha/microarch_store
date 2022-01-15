@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"store/pkg/billing/domain"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -26,6 +27,8 @@ const (
 const (
 	errorCodeUnknown             = 0
 	errorCodeUserAccountNotFound = 1
+	errorNotEnoughBalance        = 2
+	errorInvalidAmount           = 3
 )
 
 var errUnauthorized = errors.New("not authorized")
@@ -68,7 +71,7 @@ type paymentInfo struct {
 func (s *server) Start() {
 	s.router.Methods(http.MethodGet).Path(accountEndpoint).Handler(s.makeHandlerFunc(s.getUserAccountEndpoint))
 	s.router.Methods(http.MethodPost).Path(accountEndpoint).Handler(s.makeHandlerFunc(s.topUpAccountEndpoint))
-	s.router.Methods(http.MethodPost).Path(paymentEndpoint).Handler(s.makeHandlerFunc(s.getUserAccountEndpoint))
+	s.router.Methods(http.MethodPost).Path(paymentEndpoint).Handler(s.makeHandlerFunc(s.processPaymentEndpoint))
 }
 
 func (s *server) makeHandlerFunc(handler func(http.ResponseWriter, *http.Request) error) http.HandlerFunc {
@@ -188,6 +191,12 @@ func writeErrorResponse(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusNotFound)
 	case errForbidden:
 		w.WriteHeader(http.StatusForbidden)
+	case domain.ErrNotEnoughBalance:
+		info.Code = errorNotEnoughBalance
+		w.WriteHeader(http.StatusBadRequest)
+	case domain.ErrInvalidAmount:
+		info.Code = errorInvalidAmount
+		w.WriteHeader(http.StatusBadRequest)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 	}

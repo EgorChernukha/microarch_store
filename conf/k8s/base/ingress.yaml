@@ -47,6 +47,52 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  name: billing
+  namespace: otus
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/auth-url: http://auth.otus.svc.cluster.local:8000/api/v1/auth
+    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Token
+spec:
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - backend:
+              service:
+                name: billing
+                port:
+                  number: 8000
+            pathType: Prefix
+            path: /billing(/|$)(.*)
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notification
+  namespace: otus
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/auth-url: http://auth.otus.svc.cluster.local:8000/api/v1/auth
+    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Token
+spec:
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - backend:
+              service:
+                name: notification
+                port:
+                  number: 8000
+            pathType: Prefix
+            path: /notification(/|$)(.*)
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
   name: auth
   namespace: otus
   annotations:

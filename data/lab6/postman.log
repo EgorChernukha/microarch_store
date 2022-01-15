@@ -1,0 +1,174 @@
+newman
+
+lab 6
+
+❏ Test Scenario
+↳ Init
+  POST arch.homework/auth/api/v1/logout [200 OK, 153B, 115ms]
+  ✓  Request params:
+
+  ✓  Response:
+
+  ✓  Status code is 200
+
+↳ Register user
+  POST arch.homework/auth/api/v1/register [200 OK, 191B, 19ms]
+  ✓  Request params:
+        {
+            "login": "Rosanna3",
+            "password": "04rmDIx1EZjxeo6"
+        }
+  ✓  Response:
+        {"id":"ae715b9d-7657-11ec-81f0-0242ac110008"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+
+↳ Login user
+  POST arch.homework/auth/api/v1/login [200 OK, 178B, 12ms]
+  ✓  Request params:
+        {
+            "login": "Rosanna3",
+            "password": "04rmDIx1EZjxeo6"
+        }
+  ✓  Response:
+
+  ✓  Status code is 200
+
+↳ Check initial account status
+  GET arch.homework/billing/api/v1/account [200 OK, 289B, 22ms]
+  ✓  Request params:
+
+  ✓  Response:
+        {"id":"c2b15999-7657-11ec-af3c-0242ac110009","user_id":"ae715b9d-7657-11ec-81f0-0242ac110008","balance":0,"updated_at":"2022-01-15T23:06:24Z"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Initial account balance should be 0
+
+↳ Top up account
+  POST arch.homework/billing/api/v1/account [200 OK, 99B, 19ms]
+  ✓  Request params:
+        {
+            "amount": 1000
+        }
+  ✓  Response:
+
+  ✓  Status code is 200
+
+↳ Get Account status
+  GET arch.homework/billing/api/v1/account [200 OK, 292B, 15ms]
+  ✓  Request params:
+
+  ✓  Response:
+        {"id":"c2b15999-7657-11ec-af3c-0242ac110009","user_id":"ae715b9d-7657-11ec-81f0-0242ac110008","balance":1000,"updated_at":"2022-01-15T23:06:24Z"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Account balance should be equal to 1000
+
+↳ Initial notifications check
+  GET arch.homework/notification/api/v1/notification/list [200 OK, 147B, 14ms]
+  ✓  Request params:
+
+  ✓  Response:
+        []
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Initially should not be any notifications
+
+↳ Create affordable order
+  POST arch.homework/order/api/v1/order [200 OK, 191B, 23ms]
+  ✓  Request params:
+        {
+            "price": 531.75
+        }
+  ✓  Response:
+        {"id":"c69f629a-7657-11ec-9d9a-0242ac11000e"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+
+↳ Get order
+  GET arch.homework/order/api/v1/order/c69f629a-7657-11ec-9d9a-0242ac11000e [200 OK, 389B, 14ms]
+  ✓  Request params:
+
+  ✓  Response:
+        {"id":"c69f6298-7657-11ec-9d9a-0242ac11000e","user_id":"ae715b9d-7657-11ec-81f0-0242ac110008","order_id":"c69f629a-7657-11ec-9d9a-0242ac11000e","price":531.75,"status":0,"created_at":"2022-01-15T23:06:30Z","updated_at":"2022-01-15T23:06:30Z"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Order information valid
+
+↳ Account balance changed
+  GET arch.homework/billing/api/v1/account [200 OK, 294B, 22ms]
+  ✓  Request params:
+
+  ✓  Response:
+        {"id":"c2b15999-7657-11ec-af3c-0242ac110009","user_id":"ae715b9d-7657-11ec-81f0-0242ac110008","balance":468.25,"updated_at":"2022-01-15T23:06:24Z"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Account amount reduced to order price
+
+↳ Check user notifications
+  GET arch.homework/notification/api/v1/notification/list [200 OK, 313B, 12ms]
+  ✓  Request params:
+
+  ✓  Response:
+        [{"user_id":"ae715b9d-7657-11ec-81f0-0242ac110008","order_id":"c69f629a-7657-11ec-9d9a-0242ac11000e","message":"Order confirmed","created_at":"2022-01-15T23:07:00Z"}]
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Should be one 'OrderConfirmed' notification
+
+↳ Create unaffordable order
+  POST arch.homework/order/api/v1/order [400 Bad Request, 193B, 18ms]
+  ✓  Request params:
+        {
+            "price": 1000
+        }
+  ✓  Response:
+        {"code":2,"message":"order payment failed"}
+  ✓  Status code is 400
+
+↳ Check Account status not changed
+  GET arch.homework/billing/api/v1/account [200 OK, 294B, 12ms]
+  ✓  Request params:
+
+  ✓  Response:
+        {"id":"c2b15999-7657-11ec-af3c-0242ac110009","user_id":"ae715b9d-7657-11ec-81f0-0242ac110008","balance":468.25,"updated_at":"2022-01-15T23:06:24Z"}
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Account amount not changed
+
+↳ Check user notifications
+  GET arch.homework/notification/api/v1/notification/list [200 OK, 477B, 15ms]
+  ✓  Request params:
+
+  ✓  Response:
+        [{"user_id":"ae715b9d-7657-11ec-81f0-0242ac110008","order_id":"c69f629a-7657-11ec-9d9a-0242ac11000e","message":"Order confirmed","created_at":"2022-01-15T23:07:00Z"},{"user_id":"ae715b9d-7657-11ec-81f0-0242ac110008","order_id":"deaad39b-7657-11ec-9d9a-0242ac11000e","message":"Order rejected","created_at":"2022-01-15T23:07:45Z"}]
+  ✓  Status code is 200
+  ✓  Response schema is valid
+  ✓  Should be one 'OrderConfirmed' and one 'OrderRejected' notification
+
+↳ Logout
+  POST arch.homework/auth/api/v1/logout [200 OK, 153B, 13ms]
+  ✓  Request params:
+
+  ✓  Response:
+
+  ✓  Status code is 200
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                15 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                30 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                21 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                63 │                 0 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 2m 1.4s                                     │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 1.45kB (approx)                            │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 23ms [min: 12ms, max: 115ms, s.d.: 24ms] │
+└─────────────────────────────────────────────────────────────────┘

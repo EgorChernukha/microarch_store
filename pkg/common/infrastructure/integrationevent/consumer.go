@@ -73,6 +73,6 @@ func (ec *eventConsumer) handleEvent(eventData integrationevent.EventData) {
 	if err != nil {
 		logrus.Fatalf("error processing integration event - %s\nDetails: uid - '%s', type - '%s', body - '%s'", err.Error(), eventData.UID, eventData.Type, eventData.Body)
 	} else {
-		logrus.Infof("integration event '%s' with type '%s' handled", eventData.UID, eventData.Type)
+		logrus.Infof("integration event '%s' with type '%s' handled", uuid.UUID(eventData.UID).String(), eventData.Type)
 	}
 }

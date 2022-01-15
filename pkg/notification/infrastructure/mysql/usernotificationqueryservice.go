@@ -26,7 +26,7 @@ type sqlxUserNotificationData struct {
 }
 
 func (s *userNotificationQueryService) ListUserNotifications(userID uuid.UUID) ([]app.UserNotificationData, error) {
-	const sqlQuery = `SELECT user_id, order_id, message, created_at FROM user_notification WHERE user_id = ?`
+	const sqlQuery = `SELECT user_id, order_id, message, created_at FROM user_notification WHERE user_id = ? ORDER BY created_at`
 
 	var userNotifications []*sqlxUserNotificationData
 	err := s.client.Select(&userNotifications, sqlQuery, userID.Bytes())

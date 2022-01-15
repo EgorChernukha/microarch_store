@@ -1,8 +1,6 @@
 package mysql
 
 import (
-	"database/sql"
-
 	"github.com/pkg/errors"
 
 	"store/pkg/common/app/integrationevent"
@@ -19,15 +17,14 @@ type processedEventRepository struct {
 }
 
 func (repo *processedEventRepository) SetProcessed(eventID integrationevent.EventUID) (alreadyProcessed bool, err error) {
-	const query = `INSERT IGNORE INTO processed_event (event_id) VALUES (:event_id)`
+	const query = `INSERT IGNORE INTO processed_event (event_id) VALUES (?)`
 
-	var resUID string
-	err = repo.client.Get(&resUID, query, mysql.BinaryUUID(eventID))
+	result, err := repo.client.Exec(query, mysql.BinaryUUID(eventID))
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return true, nil
-		}
 		return false, errors.WithStack(err)
 	}
-	return false, nil
+
+	rowsAffected, _ := result.RowsAffected()
+
+	return rowsAffected < 1, nil
 }

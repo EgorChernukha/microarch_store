@@ -63,6 +63,8 @@ spec:
                 secretKeyRef:
                   name: order-secret
                   key: ORDER_AMQP_PASSWORD
+            - name: ORDER_BILLING_HOST
+              value: "http://billing:8000"
           ports:
             - name: http
               containerPort: 8080

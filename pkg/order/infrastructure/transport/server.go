@@ -33,7 +33,7 @@ var errUnauthorized = errors.New("not authorized")
 var errForbidden = errors.New("access denied")
 var errBadRequest = errors.New("bad request")
 
-type userOrderStatusData struct {
+type userOrderData struct {
 	Status int `json:"status"`
 }
 
@@ -72,7 +72,7 @@ type createOrderResponse struct {
 
 func (s *server) Start() {
 	s.router.Methods(http.MethodPost).Path(createOrderEndpoint).Handler(s.makeHandlerFunc(s.createOrderEndpoint))
-	s.router.Methods(http.MethodGet).Path(specificOderEndpoint).Handler(s.makeHandlerFunc(s.getOrderStatusEndpoint))
+	s.router.Methods(http.MethodGet).Path(specificOderEndpoint).Handler(s.makeHandlerFunc(s.getOrderEndpoint))
 	s.router.Methods(http.MethodGet).Path(ordersEndpoint).Handler(s.makeHandlerFunc(s.listOrdersEndpoint))
 }
 
@@ -133,7 +133,7 @@ func (s *server) createOrderEndpoint(w http.ResponseWriter, r *http.Request) err
 	return nil
 }
 
-func (s *server) getOrderStatusEndpoint(w http.ResponseWriter, r *http.Request) error {
+func (s *server) getOrderEndpoint(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -156,7 +156,7 @@ func (s *server) getOrderStatusEndpoint(w http.ResponseWriter, r *http.Request) 
 		return errForbidden
 	}
 
-	writeResponse(w, userOrderStatusData{Status: userOrderData.Status})
+	writeResponse(w, userOrderData)
 	return nil
 }
 
@@ -199,6 +199,9 @@ func writeErrorResponse(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusNotFound)
 	case errForbidden:
 		w.WriteHeader(http.StatusForbidden)
+	case app.ErrPaymentFailed:
+		info.Code = errorCodePaymentFailed
+		w.WriteHeader(http.StatusBadRequest)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 	}
