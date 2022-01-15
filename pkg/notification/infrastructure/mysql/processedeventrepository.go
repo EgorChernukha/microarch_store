@@ -18,7 +18,7 @@ type processedEventRepository struct {
 	client mysql.Client
 }
 
-func (repo *processedEventRepository) SetProcessed(eventID integrationevent.EventID) (alreadyProcessed bool, err error) {
+func (repo *processedEventRepository) SetProcessed(eventID integrationevent.EventUID) (alreadyProcessed bool, err error) {
 	const query = `INSERT IGNORE INTO processed_event (event_id) VALUES (:event_id)`
 
 	var resUID string

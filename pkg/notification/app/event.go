@@ -7,7 +7,7 @@ import (
 )
 
 type ProcessedEventRepository interface {
-	SetProcessed(eventID integrationevent.EventID) (alreadyProcessed bool, err error)
+	SetProcessed(eventID integrationevent.EventUID) (alreadyProcessed bool, err error)
 }
 
 type UserEvent interface {

@@ -2,10 +2,10 @@ package integrationevent
 
 import uuid "github.com/satori/go.uuid"
 
-type EventID uuid.UUID
+type EventUID uuid.UUID
 
 type EventData struct {
-	UID  EventID
+	UID  EventUID
 	Type string
 	Body string
 }

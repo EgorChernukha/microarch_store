@@ -55,7 +55,7 @@ func (ec *eventConsumer) messageHandler(msg *amqp.Message) {
 	}
 
 	ec.handleEvent(integrationevent.EventData{
-		UID:  integrationevent.EventID(eventID),
+		UID:  integrationevent.EventUID(eventID),
 		Type: eventData.Type,
 		Body: eventData.Body,
 	})

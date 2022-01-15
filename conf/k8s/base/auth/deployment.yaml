@@ -49,6 +49,20 @@ spec:
                 secretKeyRef:
                   name: auth-secret
                   key: AUTH_DB_PASSWORD
+            - name: AUTH_AMQP_HOST
+              value: "rabbitmq"
+            - name: AUTH_AMQP_PORT
+              value: "5552"
+            - name: AUTH_AMQP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: AUTH_AMQP_USER
+            - name: AUTH_AMQP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: AUTH_AMQP_PASSWORD
           ports:
             - name: http
               containerPort: 8080
