@@ -28,6 +28,7 @@ type config struct {
 	AMQPUser             string `envconfig:"amqp_user" default:"guest"`
 	AMQPPassword         string `envconfig:"amqp_password" default:"guest"`
 	MigrationsDir        string `envconfig:"migrations_dir"`
+	BillingServiceHost   string `envconfig:"billing_host" default:"http://billing-app:8000"`
 }
 
 func (c *config) dsn() mysql.DSN {

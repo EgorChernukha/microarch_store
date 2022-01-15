@@ -2,6 +2,7 @@ package transport
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -10,7 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"store/pkg/common/infrastructure/jwt"
-
 	"store/pkg/order/app"
 )
 
@@ -18,15 +18,15 @@ const PathPrefix = "/api/v1/"
 const authTokenHeader = "X-Auth-Token"
 
 const (
-	createOrderEndpoint    = PathPrefix + "create"
-	cancelOrderEndpoint    = PathPrefix + "{id}/cancel"
-	getOrderStatusEndpoint = PathPrefix + "{id}/status"
-	listOrdersEndpoint     = PathPrefix + "list"
+	createOrderEndpoint  = PathPrefix + "order"
+	ordersEndpoint       = PathPrefix + "orders"
+	specificOderEndpoint = PathPrefix + "order/{id}"
 )
 
 const (
 	errorCodeUnknown       = 0
 	errorCodeOrderNotFound = 1
+	errorCodePaymentFailed = 2
 )
 
 var errUnauthorized = errors.New("not authorized")
@@ -41,10 +41,11 @@ type Server interface {
 	Start()
 }
 
-func NewServer(router *mux.Router, tokenParser jwt.TokenParser, userOrderQueryService app.UserOrderQueryService) Server {
+func NewServer(router *mux.Router, tokenParser jwt.TokenParser, userOrderService app.UserOrderService, userOrderQueryService app.UserOrderQueryService) Server {
 	return &server{
 		router:                router,
 		tokenParser:           tokenParser,
+		userOrderService:      userOrderService,
 		userOrderQueryService: userOrderQueryService,
 	}
 }
@@ -52,6 +53,7 @@ func NewServer(router *mux.Router, tokenParser jwt.TokenParser, userOrderQuerySe
 type server struct {
 	router                *mux.Router
 	tokenParser           jwt.TokenParser
+	userOrderService      app.UserOrderService
 	userOrderQueryService app.UserOrderQueryService
 }
 
@@ -60,11 +62,18 @@ type errorInfo struct {
 	Message string `json:"message"`
 }
 
+type createOrderInfo struct {
+	Price float64 `json:"price"`
+}
+
+type createOrderResponse struct {
+	ID string `json:"id"`
+}
+
 func (s *server) Start() {
 	s.router.Methods(http.MethodPost).Path(createOrderEndpoint).Handler(s.makeHandlerFunc(s.createOrderEndpoint))
-	s.router.Methods(http.MethodPost).Path(cancelOrderEndpoint).Handler(s.makeHandlerFunc(s.cancelOrderEndpoint))
-	s.router.Methods(http.MethodGet).Path(getOrderStatusEndpoint).Handler(s.makeHandlerFunc(s.getOrderStatusEndpoint))
-	s.router.Methods(http.MethodGet).Path(listOrdersEndpoint).Handler(s.makeHandlerFunc(s.listOrdersEndpoint))
+	s.router.Methods(http.MethodGet).Path(specificOderEndpoint).Handler(s.makeHandlerFunc(s.getOrderStatusEndpoint))
+	s.router.Methods(http.MethodGet).Path(ordersEndpoint).Handler(s.makeHandlerFunc(s.listOrdersEndpoint))
 }
 
 func (s *server) makeHandlerFunc(handler func(http.ResponseWriter, *http.Request) error) http.HandlerFunc {
@@ -101,21 +110,26 @@ func (s *server) createOrderEndpoint(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	_ = tokenData
-	return nil
-}
-
-func (s *server) cancelOrderEndpoint(w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	tokenData, err := s.extractAuthorizationData(r)
+	var info createOrderInfo
+	bytesBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return err
 	}
-	_ = id
-	_ = tokenData
+	if err = json.Unmarshal(bytesBody, &info); err != nil {
+		return err
+	}
 
+	userID, err := uuid.FromString(tokenData.UserID())
+	if err != nil {
+		return err
+	}
+
+	orderID, err := s.userOrderService.Create(app.UserID(userID), info.Price)
+	if err != nil {
+		return err
+	}
+	response := createOrderResponse{ID: uuid.UUID(orderID).String()}
+	writeResponse(w, response)
 	return nil
 }
 

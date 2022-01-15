@@ -1,6 +1,8 @@
-package domain
+package app
 
-import uuid "github.com/satori/go.uuid"
+import (
+	uuid "github.com/satori/go.uuid"
+)
 
 type ID uuid.UUID
 type UserID uuid.UUID

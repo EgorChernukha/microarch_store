@@ -2,16 +2,15 @@ package mysql
 
 import (
 	"database/sql"
+	"store/pkg/order/app"
 
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
 	"store/pkg/common/infrastructure/mysql"
-
-	"store/pkg/order/domain"
 )
 
-func NewUserOrderRepository(client mysql.Client) domain.UserOrderRepository {
+func NewUserOrderRepository(client mysql.Client) app.UserOrderRepository {
 	return &userOrderRepository{client: client}
 }
 
@@ -27,11 +26,11 @@ type sqlxUserOrder struct {
 	Status  int              `db:"status"`
 }
 
-func (r *userOrderRepository) NewID() domain.ID {
-	return domain.ID(mysql.NewUUID())
+func (r *userOrderRepository) NewID() app.ID {
+	return app.ID(mysql.NewUUID())
 }
 
-func (r *userOrderRepository) Store(userOrder domain.UserOrder) error {
+func (r *userOrderRepository) Store(userOrder app.UserOrder) error {
 	const sqlQuery = `INSERT INTO user_order
 	(id, user_id, order_id, price, status, updated_at)
 	VALUES (:id, :user_id, :order_id, :price, :status, NOW())
@@ -49,23 +48,23 @@ func (r *userOrderRepository) Store(userOrder domain.UserOrder) error {
 	return errors.WithStack(err)
 }
 
-func (r *userOrderRepository) FindOneByOrderID(orderID domain.OrderID) (domain.UserOrder, error) {
+func (r *userOrderRepository) FindOneByOrderID(orderID app.OrderID) (app.UserOrder, error) {
 	const sqlQuery = `SELECT id, user_id, order_id, price, status FROM user_order WHERE order_id=?`
 
 	var sqlUserOrder sqlxUserOrder
 
 	err := r.client.Get(&sqlUserOrder, sqlQuery, uuid.UUID(orderID).Bytes())
 	if err == sql.ErrNoRows {
-		return nil, errors.WithStack(domain.ErrUserOrderNotFound)
+		return nil, errors.WithStack(app.ErrUserOrderNotFound)
 	} else if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return domain.NewUserOrder(
-		domain.ID(sqlUserOrder.ID),
-		domain.UserID(sqlUserOrder.UserID),
-		domain.OrderID(sqlUserOrder.OrderID),
+	return app.NewUserOrder(
+		app.ID(sqlUserOrder.ID),
+		app.UserID(sqlUserOrder.UserID),
+		app.OrderID(sqlUserOrder.OrderID),
 		sqlUserOrder.Price,
-		domain.Status(sqlUserOrder.Status),
+		app.Status(sqlUserOrder.Status),
 	), nil
 }

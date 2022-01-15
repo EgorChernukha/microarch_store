@@ -12,14 +12,15 @@ import (
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 
-	"store/pkg/common/infrastructure/amqp"
+	"store/pkg/common/app/streams"
 	"store/pkg/common/infrastructure/jwt"
 	commonmysql "store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
+	"store/pkg/common/infrastructure/storedevent"
+	commonstreams "store/pkg/common/infrastructure/streams"
 	transportcommon "store/pkg/common/infrastructure/transport"
-
-	appintegrationevent "store/pkg/order/app/integrationevent"
-	"store/pkg/order/infrastructure/integrationevent"
+	"store/pkg/order/app"
+	"store/pkg/order/infrastructure/billing"
 	"store/pkg/order/infrastructure/mysql"
 	"store/pkg/order/infrastructure/transport"
 )
@@ -52,20 +53,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	amqpConnection := amqp.NewAMQPConnection(&amqp.Config{Host: cnf.AMQPHost, User: cnf.AMQPUser, Password: cnf.AMQPPassword})
-	integrationEventTransport := integrationevent.NewIntegrationEventsTransport(false)
-	amqpConnection.AddChannel(integrationEventTransport)
-	eventHandler := integrationevent.NewIntegrationEventHandler([]appintegrationevent.Handler{appintegrationevent.NewHandler()})
-	integrationEventTransport.SetHandler(eventHandler)
-
-	err = amqpConnection.Start()
+	streamsEnvironment, err := initStreamsEnvironment(cnf)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// noinspection GoUnhandledErrorResult
-	defer amqpConnection.Stop()
 
-	srv := createServer(connector.Client(), metricsHandler, cnf)
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	defer cancelFunc()
+	srv := createServer(ctx, connector, streamsEnvironment, metricsHandler, cnf)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -83,16 +78,35 @@ func main() {
 	log.Print("Server Exited Properly")
 }
 
-func createServer(client commonmysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
+func initStreamsEnvironment(cfg *config) (streams.Environment, error) {
+	return commonstreams.NewEnvironment(appID,
+		streams.Config{
+			Host:     cfg.AMQPHost,
+			Port:     cfg.AMQPPort,
+			User:     cfg.AMQPUser,
+			Password: cfg.AMQPPassword,
+		})
+}
+
+func createServer(ctx context.Context, connector commonmysql.Connector, streamsEnvironment streams.Environment, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")
 	metricsHandler.AddCommonMetricsMiddleware(router)
 	tokenParser := jwt.NewTokenParser(cnf.JWTSecret)
 
-	userOrderQueryService := mysql.NewUserOrderQueryService(client)
+	eventStore, err := storedevent.NewEventSender(ctx, mysql.NewEventStore(connector.Client()), streamsEnvironment)
+	if err != nil {
+		log.Fatal(err)
+	}
+	trUnitFactory := mysql.NewTransactionalUnitFactory(connector.Client())
+	billingClient := billing.NewClient(http.Client{}, cnf.BillingServiceHost)
+	userOrderRepository := mysql.NewUserOrderRepository(connector.Client())
+	userOrderService := app.NewUserOrderService(trUnitFactory, userOrderRepository, eventStore, billingClient)
 
-	server := transport.NewServer(router, tokenParser, userOrderQueryService)
+	userOrderQueryService := mysql.NewUserOrderQueryService(connector.Client())
+
+	server := transport.NewServer(router, tokenParser, userOrderService, userOrderQueryService)
 	server.Start()
 
 	return &http.Server{

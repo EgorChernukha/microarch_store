@@ -1,6 +1,8 @@
-package domain
+package app
 
-import "errors"
+import (
+	"errors"
+)
 
 type UserOrderRepository interface {
 	NewID() ID
