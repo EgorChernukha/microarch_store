@@ -17,7 +17,7 @@ import (
 	"store/pkg/common/infrastructure/jwt"
 	commonmysql "store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
-	infrastreams "store/pkg/common/infrastructure/streams"
+	commonstreams "store/pkg/common/infrastructure/streams"
 	transportcommon "store/pkg/common/infrastructure/transport"
 	"store/pkg/notification/app"
 	"store/pkg/notification/infrastructure/integrationevent"
@@ -57,10 +57,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	userNotificationQueryService := mysql.NewUserNotificationQueryService(connector.Client())
-
-	srv := createServer(connector, userNotificationQueryService, streamsEnvironment, metricsHandler, cnf)
+	srv := createServer(connector, streamsEnvironment, metricsHandler, cnf)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -79,7 +76,7 @@ func main() {
 }
 
 func initStreamsEnvironment(cfg *config) (streams.Environment, error) {
-	return infrastreams.NewEnvironment(appID,
+	return commonstreams.NewEnvironment(appID,
 		streams.Config{
 			Host:     cfg.AMQPHost,
 			Port:     cfg.AMQPPort,
@@ -88,7 +85,7 @@ func initStreamsEnvironment(cfg *config) (streams.Environment, error) {
 		})
 }
 
-func createServer(connector commonmysql.Connector, userNotificationQueryService app.UserNotificationQueryService, streamsEnvironment streams.Environment, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
+func createServer(connector commonmysql.Connector, streamsEnvironment streams.Environment, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")
@@ -102,6 +99,7 @@ func createServer(connector commonmysql.Connector, userNotificationQueryService 
 		log.Fatal(err)
 	}
 
+	userNotificationQueryService := mysql.NewUserNotificationQueryService(connector.Client())
 	server := transport.NewServer(router, tokenParser, userNotificationQueryService)
 	server.Start()
 
