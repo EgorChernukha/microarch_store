@@ -93,6 +93,52 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  name: delivery
+  namespace: otus
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/auth-url: http://auth.otus.svc.cluster.local:8000/api/v1/auth
+    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Token
+spec:
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - backend:
+              service:
+                name: delivery
+                port:
+                  number: 8000
+            pathType: Prefix
+            path: /delivery(/|$)(.*)
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stock
+  namespace: otus
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/auth-url: http://auth.otus.svc.cluster.local:8000/api/v1/auth
+    nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Token
+spec:
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - backend:
+              service:
+                name: stock
+                port:
+                  number: 8000
+            pathType: Prefix
+            path: /stock(/|$)(.*)
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
   name: auth
   namespace: otus
   annotations:
