@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: delivery-secret
+type: Opaque
+data:
+  DELIVERY_JWT_SECRET: NDJiOTZjYzUtNGM3NC0xMWVjLWJjOWItMDI0MmFjMTEwMDA5
+  DELIVERY_DB_HOST: bXlzcWwtZGVsaXZlcnk=
+  DELIVERY_DB_NAME: ZGVsaXZlcnk=
+  DELIVERY_DB_USER: ZGVsaXZlcnk=
+  DELIVERY_DB_PASSWORD: Z0JlLW85ZE5GRg==
+  DELIVERY_AMQP_USER: cm1xX3VzZXI=
+  DELIVERY_AMQP_PASSWORD: cm1xX3B3ZA==

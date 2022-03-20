@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: stock-secret
+type: Opaque
+data:
+  STOCK_JWT_SECRET: NDJiOTZjYzUtNGM3NC0xMWVjLWJjOWItMDI0MmFjMTEwMDA5
+  STOCK_DB_HOST: bXlzcWwtc3RvY2s=
+  STOCK_DB_NAME: c3RvY2s=
+  STOCK_DB_USER: c3RvY2s=
+  STOCK_DB_PASSWORD: Z0JlLW85ZE5GRg==
+  STOCK_AMQP_USER: cm1xX3VzZXI=
+  STOCK_AMQP_PASSWORD: cm1xX3B3ZA==
