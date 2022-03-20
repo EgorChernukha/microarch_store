@@ -15,6 +15,7 @@ import (
 	"store/pkg/common/infrastructure/jwt"
 	commonmysql "store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
+	transportcommon "store/pkg/common/infrastructure/transport"
 
 	"store/pkg/stock/infrastructure/transport"
 )
@@ -43,7 +44,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	metricsHandler, err := prometheus.NewMetricsHandler(transport.NewEndpointLabelCollector())
+	metricsHandler, err := prometheus.NewMetricsHandler(transportcommon.NewEndpointLabelCollector())
 	if err != nil {
 		log.Fatal(err)
 	}

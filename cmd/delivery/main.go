@@ -15,6 +15,7 @@ import (
 	"store/pkg/common/infrastructure/jwt"
 	commonmysql "store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
+	transportcommon "store/pkg/common/infrastructure/transport"
 
 	"store/pkg/delivery/infrastructure/transport"
 )
@@ -43,12 +44,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	metricsHandler, err := prometheus.NewMetricsHandler(transport.NewEndpointLabelCollector())
+	metricsHandler, err := prometheus.NewMetricsHandler(transportcommon.NewEndpointLabelCollector())
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	srv := createServer(connector.Client(), metricsHandler, cnf)
+	srv := createServer(metricsHandler, cnf)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -66,7 +67,7 @@ func main() {
 	log.Print("Server Exited Properly")
 }
 
-func createServer(client commonmysql.Client, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
+func createServer(metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")

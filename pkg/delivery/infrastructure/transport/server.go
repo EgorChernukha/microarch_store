@@ -10,14 +10,16 @@ import (
 	"store/pkg/common/infrastructure/jwt"
 )
 
+const PathPrefix = "/api/v1/"
+
 const (
 	currentDeliveryEndpoint = PathPrefix + "delivery"
 	specDeliveryEndpoint    = PathPrefix + "delivery/{id}"
 )
 
 const (
-	errorCodeUnknown  = 0
-	errorCodeNotFound = 1
+	errorCodeUnknown          = 0
+	errorCodeDeliveryNotFound = 1
 )
 
 const authTokenHeader = "X-Auth-Token"
