@@ -12,11 +12,17 @@ import (
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 
+	"store/pkg/common/app/streams"
+	commonintegrationevent "store/pkg/common/infrastructure/integrationevent"
 	"store/pkg/common/infrastructure/jwt"
 	commonmysql "store/pkg/common/infrastructure/mysql"
 	"store/pkg/common/infrastructure/prometheus"
+	commonstreams "store/pkg/common/infrastructure/streams"
 	transportcommon "store/pkg/common/infrastructure/transport"
 
+	"store/pkg/delivery/app"
+	"store/pkg/delivery/infrastructure/integrationevent"
+	"store/pkg/delivery/infrastructure/mysql"
 	"store/pkg/delivery/infrastructure/transport"
 )
 
@@ -44,12 +50,17 @@ func main() {
 		log.Fatal(err)
 	}
 
+	streamsEnvironment, err := initStreamsEnvironment(cnf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	metricsHandler, err := prometheus.NewMetricsHandler(transportcommon.NewEndpointLabelCollector())
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	srv := createServer(metricsHandler, cnf)
+	srv := createServer(connector, streamsEnvironment, metricsHandler, cnf)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -67,12 +78,29 @@ func main() {
 	log.Print("Server Exited Properly")
 }
 
-func createServer(metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
+func initStreamsEnvironment(cfg *config) (streams.Environment, error) {
+	return commonstreams.NewEnvironment(appID,
+		streams.Config{
+			Host:     cfg.AMQPHost,
+			Port:     cfg.AMQPPort,
+			User:     cfg.AMQPUser,
+			Password: cfg.AMQPPassword,
+		})
+}
+
+func createServer(connector commonmysql.Connector, streamsEnvironment streams.Environment, metricsHandler prometheus.MetricsHandler, cnf *config) *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")
 	metricsHandler.AddCommonMetricsMiddleware(router)
 	tokenParser := jwt.NewTokenParser(cnf.JWTSecret)
+
+	trUnitFactory := mysql.NewTransactionalUnitFactory(connector.Client())
+	eventHandler := app.NewEventHandler(trUnitFactory, integrationevent.NewEventParser())
+
+	if err := commonintegrationevent.StartEventConsumer(streamsEnvironment, eventHandler); err != nil {
+		log.Fatal(err)
+	}
 
 	server := transport.NewServer(router, tokenParser)
 	server.Start()
