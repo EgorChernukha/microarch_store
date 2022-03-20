@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: delivery
+  labels:
+    app: delivery
+spec:
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: delivery
+  endpoints:
+    - interval: 15s
+      port: web
+      path: /monitoring
