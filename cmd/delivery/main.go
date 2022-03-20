@@ -71,14 +71,13 @@ func createServer(client commonmysql.Client, metricsHandler prometheus.MetricsHa
 	router.HandleFunc("/health", healthEndpoint).Methods(http.MethodGet)
 	metricsHandler.AddMetricsHandler(router, "/monitoring")
 	metricsHandler.AddCommonMetricsMiddleware(router)
-
 	tokenParser := jwt.NewTokenParser(cnf.JWTSecret)
 
 	server := transport.NewServer(router, tokenParser)
 	server.Start()
 
 	return &http.Server{
-		Addr:    ":8000",
+		Addr:    ":8080",
 		Handler: router,
 	}
 }
