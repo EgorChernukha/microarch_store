@@ -16,10 +16,10 @@ type OrderPositionData struct {
 }
 
 type OrderPositionQueryService interface {
-	FindByOrderID(orderID uuid.UUID) ([]PositionData, error)
-	FindByPositionID(positionID uuid.UUID) ([]PositionData, error)
-	FindByOrderIDAndPositionID(orderID uuid.UUID, positionID uuid.UUID) (PositionData, error)
-	ListOrderPositions() ([]PositionData, error)
+	FindByOrderID(orderID uuid.UUID) ([]OrderPositionData, error)
+	FindByPositionID(positionID uuid.UUID) ([]OrderPositionData, error)
+	FindByOrderIDAndPositionID(orderID uuid.UUID, positionID uuid.UUID) (OrderPositionData, error)
+	ListOrderPositions() ([]OrderPositionData, error)
 }
 
 var ErrOrderPositionNotExists = errors.New("order position does not exist")
