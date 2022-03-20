@@ -94,3 +94,30 @@ kubectl apply -f ./conf/k8s/base/. --recursive
 #monitoring
 kubectl apply -f ./conf/k8s/monitoring/. --recursive
 ```
+
+Итоговый проект:
+```shell
+# Настройка окружения
+kubectl apply -f ./conf/k8s/base/namespace.yaml
+kubens otus
+
+# app
+helm install mysql-auth -f conf/helm/mysql/authvalues.yaml bitnami/mysql --version 8.8.12
+helm install mysql-user -f conf/helm/mysql/uservalues.yaml bitnami/mysql --version 8.8.12
+helm install mysql-order -f conf/helm/mysql/ordervalues.yaml bitnami/mysql --version 8.8.12
+helm install mysql-billing -f conf/helm/mysql/billingvalues.yaml bitnami/mysql --version 8.8.12
+helm install mysql-notification -f conf/helm/mysql/notificationvalues.yaml bitnami/mysql --version 8.8.12
+helm install mysql-delivery -f conf/helm/mysql/deliveryvalues.yaml bitnami/mysql --version 8.8.12
+helm install mysql-stock -f conf/helm/mysql/stockvalues.yaml bitnami/mysql --version 8.8.12
+helm install rabbitmq -f conf/helm/rabbitmq/values.yaml bitnami/rabbitmq --atomic
+helm install nginx ingress-nginx/ingress-nginx -f ./conf/helm/ingress-nginx/values.yaml --atomic
+
+# monitoring
+helm install prom prometheus-community/kube-prometheus-stack -f ./conf/helm/prometheus/values.yaml --atomic
+
+#app
+kubectl apply -f ./conf/k8s/base/. --recursive
+
+#monitoring
+kubectl apply -f ./conf/k8s/monitoring/. --recursive
+```
