@@ -7,7 +7,9 @@ APP_CMD_NAMES = \
 	auth \
 	order \
 	billing \
-	notification
+	notification \
+	delivery \
+	stock
 
 # Contains common make targets, including 'build', 'test' and 'check'
 include make/rules.mk
