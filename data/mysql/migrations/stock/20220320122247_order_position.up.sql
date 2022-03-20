@@ -7,7 +7,8 @@ CREATE TABLE `order_position`
     `updated_at`  DATETIME   NOT NULL,
     PRIMARY KEY (id),
     INDEX order_idx (`order_id`),
-    INDEX position_idx (`position_id`)
+    INDEX position_idx (`position_id`),
+    UNIQUE order_position_idx (`order_id`, `position_id`)
 )
     ENGINE = InnoDB
     CHARACTER SET = utf8mb4
