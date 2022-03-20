@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery
+  namespace: otus
+  labels:
+    app: delivery
+spec:
+  selector:
+    matchLabels:
+      app: delivery
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: delivery
+    spec:
+      containers:
+        - image: echernukha/delivery:latest
+          name: deliverycontainer
+          env:
+            - name: DELIVERY_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-secret
+                  key: DELIVERY_JWT_SECRET
+            - name: DELIVERY_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-secret
+                  key: DELIVERY_DB_HOST
+            - name: DELIVERY_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-secret
+                  key: DELIVERY_DB_NAME
+            - name: DELIVERY_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-secret
+                  key: DELIVERY_DB_USER
+            - name: DELIVERY_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-secret
+                  key: DELIVERY_DB_PASSWORD
+            - name: DELIVERY_AMQP_HOST
+              value: "rabbitmq"
+            - name: DELIVERY_AMQP_PORT
+              value: "5552"
+            - name: DELIVERY_AMQP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-secret
+                  key: DELIVERY_AMQP_USER
+            - name: DELIVERY_AMQP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: delivery-secret
+                  key: DELIVERY_AMQP_PASSWORD
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8080
+            initialDelaySeconds: 25
+            periodSeconds: 10

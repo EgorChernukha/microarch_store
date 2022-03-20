@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock
+  namespace: otus
+  labels:
+    app: stock
+spec:
+  selector:
+    matchLabels:
+      app: stock
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: stock
+    spec:
+      containers:
+        - image: echernukha/stock:latest
+          name: stockcontainer
+          env:
+            - name: STOCK_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: stock-secret
+                  key: STOCK_JWT_SECRET
+            - name: STOCK_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: stock-secret
+                  key: STOCK_DB_HOST
+            - name: STOCK_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: stock-secret
+                  key: STOCK_DB_NAME
+            - name: STOCK_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: stock-secret
+                  key: STOCK_DB_USER
+            - name: STOCK_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: stock-secret
+                  key: STOCK_DB_PASSWORD
+            - name: STOCK_AMQP_HOST
+              value: "rabbitmq"
+            - name: STOCK_AMQP_PORT
+              value: "5552"
+            - name: STOCK_AMQP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: stock-secret
+                  key: STOCK_AMQP_USER
+            - name: STOCK_AMQP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: stock-secret
+                  key: STOCK_AMQP_PASSWORD
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 8080
+            initialDelaySeconds: 25
+            periodSeconds: 10
