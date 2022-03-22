@@ -2,6 +2,7 @@ package app
 
 type RepositoryProvider interface {
 	ProcessedEventRepository() ProcessedEventRepository
+	OrderDeliveryRepository() OrderDeliveryRepository
 }
 
 type TransactionalUnit interface {

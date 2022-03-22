@@ -11,7 +11,7 @@ type OrderDeliveryData struct {
 	ID        uuid.UUID `json:"id"`
 	OrderID   uuid.UUID `json:"order_id"`
 	UserID    uuid.UUID `json:"user_id"`
-	status    int       `json:"status"`
+	Status    int       `json:"status"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
