@@ -28,6 +28,14 @@ type transactionalUnit struct {
 	transaction commonmysql.Transaction
 }
 
+func (t *transactionalUnit) PositionRepository() app.PositionRepository {
+	return NewPositionRepository(t.transaction)
+}
+
+func (t *transactionalUnit) OrderPositionRepository() app.OrderPositionRepository {
+	return NewOrderPositionRepository(t.transaction)
+}
+
 func (t *transactionalUnit) ProcessedEventRepository() app.ProcessedEventRepository {
 	return NewProcessedEventRepository(t.transaction)
 }
