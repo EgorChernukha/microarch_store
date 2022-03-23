@@ -59,6 +59,7 @@ func (handler *eventHandler) executeInTransaction(f func(RepositoryProvider) err
 }
 
 func handleOrderConfirmedEvent(provider RepositoryProvider, e orderConfirmedEvent) error {
-	// #TODO: implement me
-	return nil
+	positionService := NewPositionService(provider.PositionRepository(), provider.OrderPositionRepository())
+
+	return positionService.ConfirmReserves(e.orderID)
 }

@@ -20,6 +20,7 @@ type sqlxOrderPositionData struct {
 	OrderID    mysql.BinaryUUID `db:"order_id"`
 	PositionID mysql.BinaryUUID `db:"position_id"`
 	Count      int              `db:"count"`
+	Status     int              `db:"status"`
 	UpdatedAt  time.Time        `db:"updated_at"`
 }
 
@@ -28,7 +29,7 @@ type orderPositionQueryService struct {
 }
 
 func (o *orderPositionQueryService) FindByOrderID(orderID uuid.UUID) ([]app.OrderPositionData, error) {
-	const sqlQuery = `SELECT id, order_id, position_id, count, updated_at FROM order_position WHERE order_id=?`
+	const sqlQuery = `SELECT id, order_id, position_id, count, status, updated_at FROM order_position WHERE order_id=?`
 
 	var orderPositions []*sqlxOrderPositionData
 	err := o.client.Select(&orderPositions, sqlQuery, orderID.Bytes())
@@ -44,7 +45,7 @@ func (o *orderPositionQueryService) FindByOrderID(orderID uuid.UUID) ([]app.Orde
 }
 
 func (o *orderPositionQueryService) FindByPositionID(positionID uuid.UUID) ([]app.OrderPositionData, error) {
-	const sqlQuery = `SELECT id, order_id, position_id, count, updated_at FROM order_position WHERE position_id=?`
+	const sqlQuery = `SELECT id, order_id, position_id, count, status, updated_at FROM order_position WHERE position_id=?`
 
 	var orderPositions []*sqlxOrderPositionData
 	err := o.client.Select(&orderPositions, sqlQuery, positionID.Bytes())
@@ -60,7 +61,7 @@ func (o *orderPositionQueryService) FindByPositionID(positionID uuid.UUID) ([]ap
 }
 
 func (o *orderPositionQueryService) FindByOrderIDAndPositionID(orderID uuid.UUID, positionID uuid.UUID) (app.OrderPositionData, error) {
-	const sqlQuery = `SELECT id, order_id, position_id, count, updated_at FROM order_position WHERE order_id=? AND position_id=?`
+	const sqlQuery = `SELECT id, order_id, position_id, count, status, updated_at FROM order_position WHERE order_id=? AND position_id=?`
 
 	var sqlOrderPosition sqlxOrderPositionData
 
@@ -75,7 +76,7 @@ func (o *orderPositionQueryService) FindByOrderIDAndPositionID(orderID uuid.UUID
 }
 
 func (o *orderPositionQueryService) ListOrderPositions() ([]app.OrderPositionData, error) {
-	const sqlQuery = `SELECT id, order_id, position_id, count, updated_at FROM order_position`
+	const sqlQuery = `SELECT id, order_id, position_id, count, status, updated_at FROM order_position`
 
 	var orderPositions []*sqlxOrderPositionData
 	err := o.client.Select(&orderPositions, sqlQuery)
@@ -96,6 +97,7 @@ func sqlxOrderPositionDataToPositionData(orderPositionData *sqlxOrderPositionDat
 		OrderID:    uuid.UUID(orderPositionData.OrderID),
 		PositionID: uuid.UUID(orderPositionData.PositionID),
 		Count:      orderPositionData.Count,
+		Status:     orderPositionData.Status,
 		UpdatedAt:  orderPositionData.UpdatedAt,
 	}
 }

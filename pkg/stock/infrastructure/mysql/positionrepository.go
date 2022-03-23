@@ -16,6 +16,7 @@ func NewPositionRepository(client mysql.Client) app.PositionRepository {
 
 type sqlxPosition struct {
 	ID    mysql.BinaryUUID `db:"id"`
+	Title string           `db:"title"`
 	Total int              `db:"total"`
 }
 
@@ -29,12 +30,13 @@ func (p *positionRepository) NewID() app.PositionID {
 
 func (p *positionRepository) Store(position app.Position) error {
 	const sqlQuery = `INSERT INTO position
-	(id, total, updated_at)
-	VALUES (:id, :total, NOW())
-	ON DUPLICATE KEY UPDATE total=VALUES(total)`
+	(id, title, total, updated_at)
+	VALUES (:id, :title, :total, NOW())
+	ON DUPLICATE KEY UPDATE title=VALUES(title), total=VALUES(total)`
 
 	sqlPosition := sqlxPosition{
 		ID:    mysql.BinaryUUID(position.ID()),
+		Title: position.Title(),
 		Total: position.Total(),
 	}
 
@@ -43,7 +45,7 @@ func (p *positionRepository) Store(position app.Position) error {
 }
 
 func (p *positionRepository) FindByID(id app.PositionID) (app.Position, error) {
-	const sqlQuery = `SELECT id, total FROM position WHERE id=?`
+	const sqlQuery = `SELECT id, title, total FROM position WHERE id=?`
 
 	var sqlPosition sqlxPosition
 
@@ -56,6 +58,7 @@ func (p *positionRepository) FindByID(id app.PositionID) (app.Position, error) {
 
 	return app.NewPosition(
 		app.PositionID(sqlPosition.ID),
+		sqlPosition.Title,
 		sqlPosition.Total,
 	), nil
 }

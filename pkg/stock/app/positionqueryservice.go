@@ -9,6 +9,7 @@ import (
 
 type PositionData struct {
 	ID        uuid.UUID `json:"id"`
+	Title     string    `json:"title"`
 	Total     int       `json:"total"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

@@ -4,6 +4,11 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const (
+	Reserved = iota
+	Confirmed
+)
+
 type OrderPositionID uuid.UUID
 type OrderID uuid.UUID
 type PositionID uuid.UUID
@@ -13,14 +18,17 @@ type OrderPosition interface {
 	OrderID() OrderID
 	PositionID() PositionID
 	Count() int
+	Status() int
+	Confirm()
 }
 
-func NewOrderPosition(id OrderPositionID, orderID OrderID, positionID PositionID, count int) OrderPosition {
+func NewOrderPosition(id OrderPositionID, orderID OrderID, positionID PositionID, count int, status int) OrderPosition {
 	return &orderPosition{
 		id:         id,
 		orderID:    orderID,
 		positionID: positionID,
 		count:      count,
+		status:     status,
 	}
 }
 
@@ -29,6 +37,7 @@ type orderPosition struct {
 	orderID    OrderID
 	positionID PositionID
 	count      int
+	status     int
 }
 
 func (u *orderPosition) ID() OrderPositionID {
@@ -45,4 +54,12 @@ func (u *orderPosition) PositionID() PositionID {
 
 func (u *orderPosition) Count() int {
 	return u.count
+}
+
+func (u *orderPosition) Status() int {
+	return u.count
+}
+
+func (u *orderPosition) Confirm() {
+	u.status = Confirmed
 }

@@ -12,6 +12,7 @@ type OrderPositionData struct {
 	OrderID    uuid.UUID `json:"order_id"`
 	PositionID uuid.UUID `json:"position_id"`
 	Count      int       `json:"count"`
+	Status     int       `json:"status"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 

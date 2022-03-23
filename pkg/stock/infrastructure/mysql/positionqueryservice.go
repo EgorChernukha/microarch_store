@@ -17,6 +17,7 @@ func NewPositionQueryService(client mysql.Client) app.PositionQueryService {
 
 type sqlxPositionData struct {
 	ID        mysql.BinaryUUID `db:"id"`
+	Title     string           `db:"title"`
 	Total     int              `db:"total"`
 	UpdatedAt time.Time        `db:"updated_at"`
 }
@@ -26,7 +27,7 @@ type positionQueryService struct {
 }
 
 func (p *positionQueryService) FindPositionByID(positionID uuid.UUID) (app.PositionData, error) {
-	const sqlQuery = `SELECT id, total, updated_at FROM position WHERE id=?`
+	const sqlQuery = `SELECT id, title, total, updated_at FROM position WHERE id=?`
 
 	var sqlPosition sqlxPositionData
 
@@ -41,7 +42,7 @@ func (p *positionQueryService) FindPositionByID(positionID uuid.UUID) (app.Posit
 }
 
 func (p *positionQueryService) ListPositions() ([]app.PositionData, error) {
-	const sqlQuery = `SELECT id, total, updated_at FROM position`
+	const sqlQuery = `SELECT id, title, total, updated_at FROM position`
 
 	var positionDataList []*sqlxPositionData
 	err := p.client.Select(&positionDataList, sqlQuery)
@@ -59,6 +60,7 @@ func (p *positionQueryService) ListPositions() ([]app.PositionData, error) {
 func sqlxPositionDataToPositionData(positionData *sqlxPositionData) app.PositionData {
 	return app.PositionData{
 		ID:        uuid.UUID(positionData.ID),
+		Title:     positionData.Title,
 		Total:     positionData.Total,
 		UpdatedAt: positionData.UpdatedAt,
 	}

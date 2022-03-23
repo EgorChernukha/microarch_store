@@ -19,6 +19,7 @@ type sqlxOrderPosition struct {
 	OrderID    mysql.BinaryUUID `db:"order_id"`
 	PositionID mysql.BinaryUUID `db:"position_id"`
 	Count      int              `db:"count"`
+	Status     int              `db:"status"`
 }
 
 type orderPositionRepository struct {
@@ -31,15 +32,16 @@ func (o *orderPositionRepository) NewID() app.OrderPositionID {
 
 func (o *orderPositionRepository) Store(orderPosition app.OrderPosition) error {
 	const sqlQuery = `INSERT INTO order_position
-	(id, order_id, position_id, count, updated_at)
-	VALUES (:id, :order_id, :position_id, :count, NOW())
-	ON DUPLICATE KEY UPDATE count=VALUES(count)`
+	(id, order_id, position_id, count, status, updated_at)
+	VALUES (:id, :order_id, :position_id, :count, :status, NOW())
+	ON DUPLICATE KEY UPDATE count=VALUES(count), status=VALUES(status)`
 
 	sqlOrderPosition := sqlxOrderPosition{
 		ID:         mysql.BinaryUUID(orderPosition.ID()),
 		OrderID:    mysql.BinaryUUID(orderPosition.OrderID()),
 		PositionID: mysql.BinaryUUID(orderPosition.PositionID()),
 		Count:      orderPosition.Count(),
+		Status:     orderPosition.Status(),
 	}
 
 	_, err := o.client.NamedQuery(sqlQuery, &sqlOrderPosition)
@@ -47,7 +49,7 @@ func (o *orderPositionRepository) Store(orderPosition app.OrderPosition) error {
 }
 
 func (o *orderPositionRepository) FindByOrderID(orderID app.OrderID) ([]app.OrderPosition, error) {
-	const sqlQuery = `SELECT id, order_id, position_id, count FROM order_position WHERE AND order_id=?`
+	const sqlQuery = `SELECT id, order_id, position_id, count, status FROM order_position WHERE AND order_id=?`
 
 	var orderPositions []*sqlxOrderPosition
 	err := o.client.Select(&orderPositions, sqlQuery, uuid.UUID(orderID).Bytes())
@@ -63,7 +65,7 @@ func (o *orderPositionRepository) FindByOrderID(orderID app.OrderID) ([]app.Orde
 }
 
 func (o *orderPositionRepository) FindByPositionID(positionID app.PositionID) ([]app.OrderPosition, error) {
-	const sqlQuery = `SELECT id, order_id, position_id, count FROM order_position WHERE AND position_id=?`
+	const sqlQuery = `SELECT id, order_id, position_id, count, status FROM order_position WHERE AND position_id=?`
 
 	var orderPositions []*sqlxOrderPosition
 	err := o.client.Select(&orderPositions, sqlQuery, uuid.UUID(positionID).Bytes())
@@ -79,7 +81,7 @@ func (o *orderPositionRepository) FindByPositionID(positionID app.PositionID) ([
 }
 
 func (o *orderPositionRepository) FindByOrderIDAndPositionID(orderID app.OrderID, positionID app.PositionID) (app.OrderPosition, error) {
-	const sqlQuery = `SELECT id, order_id, position_id, count FROM order_position WHERE order_id=? AND position_id=?`
+	const sqlQuery = `SELECT id, order_id, position_id, count, status FROM order_position WHERE order_id=? AND position_id=?`
 
 	var sqlOrderPosition sqlxOrderPosition
 
@@ -99,5 +101,6 @@ func sqlxOrderPositionToOrderPosition(orderPosition *sqlxOrderPosition) app.Orde
 		app.OrderID(orderPosition.OrderID),
 		app.PositionID(orderPosition.PositionID),
 		orderPosition.Count,
+		orderPosition.Status,
 	)
 }
