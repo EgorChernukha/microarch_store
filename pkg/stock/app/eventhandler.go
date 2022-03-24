@@ -39,6 +39,8 @@ func (handler *eventHandler) Handle(event integrationevent.EventData) error {
 		switch e := parsedEvent.(type) {
 		case orderConfirmedEvent:
 			return handleOrderConfirmedEvent(provider, e)
+		case orderRejectedEvent:
+			return handleOrderRejectedEvent(provider, e)
 		default:
 			return nil
 		}
@@ -62,4 +64,10 @@ func handleOrderConfirmedEvent(provider RepositoryProvider, e orderConfirmedEven
 	positionService := NewPositionService(provider.PositionRepository(), provider.OrderPositionRepository())
 
 	return positionService.ConfirmReserves(e.orderID)
+}
+
+func handleOrderRejectedEvent(provider RepositoryProvider, e orderRejectedEvent) error {
+	positionService := NewPositionService(provider.PositionRepository(), provider.OrderPositionRepository())
+
+	return positionService.CancelReserves(e.orderID)
 }

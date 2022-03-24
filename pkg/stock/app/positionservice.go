@@ -17,6 +17,7 @@ type PositionService interface {
 	TopUpPosition(positionID uuid.UUID, count int) error
 	ReservePosition(input ReservePositionInput) error
 	ConfirmReserves(orderID uuid.UUID) error
+	CancelReserves(orderID uuid.UUID) error
 }
 
 func NewPositionService(positionRepository PositionRepository, orderPositionRepository OrderPositionRepository) PositionService {
@@ -98,6 +99,39 @@ func (p *positionService) ConfirmReserves(orderID uuid.UUID) error {
 
 	for _, orderPosition := range orderPositions {
 		orderPosition.Confirm()
+		err = p.orderPositionRepository.Store(orderPosition)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (p *positionService) CancelReserves(orderID uuid.UUID) error {
+	orderPositions, err := p.orderPositionRepository.FindByOrderID(OrderID(orderID))
+	if err != nil {
+		return err
+	}
+
+	for _, orderPosition := range orderPositions {
+		orderPosition.Cancel()
+
+		position, err := p.positionRepository.FindByID(orderPosition.PositionID())
+		if err != nil {
+			return err
+		}
+
+		err = position.TopUp(orderPosition.Count())
+		if err != nil {
+			return err
+		}
+
+		err = p.positionRepository.Store(position)
+		if err != nil {
+			return err
+		}
+
 		err = p.orderPositionRepository.Store(orderPosition)
 		if err != nil {
 			return err

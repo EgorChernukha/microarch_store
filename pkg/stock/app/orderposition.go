@@ -7,6 +7,7 @@ import (
 const (
 	Reserved = iota
 	Confirmed
+	Cancelled
 )
 
 type OrderPositionID uuid.UUID
@@ -20,6 +21,7 @@ type OrderPosition interface {
 	Count() int
 	Status() int
 	Confirm()
+	Cancel()
 }
 
 func NewOrderPosition(id OrderPositionID, orderID OrderID, positionID PositionID, count int, status int) OrderPosition {
@@ -62,4 +64,8 @@ func (u *orderPosition) Status() int {
 
 func (u *orderPosition) Confirm() {
 	u.status = Confirmed
+}
+
+func (u *orderPosition) Cancel() {
+	u.status = Cancelled
 }
