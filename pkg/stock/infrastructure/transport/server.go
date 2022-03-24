@@ -136,7 +136,7 @@ func (s *server) makeHandlerFunc(handler func(http.ResponseWriter, *http.Request
 	}
 }
 
-func (s *server) getStockPositionEndpoint(w http.ResponseWriter, r *http.Request, positionService app.PositionService) error {
+func (s *server) getStockPositionEndpoint(w http.ResponseWriter, r *http.Request, _ app.PositionService) error {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -285,6 +285,10 @@ func writeErrorResponse(w http.ResponseWriter, err error) {
 	case app.ErrPositionNotFound:
 		info.Code = errorCodePositionNotFound
 		w.WriteHeader(http.StatusNotFound)
+	case errUnauthorized:
+		w.WriteHeader(http.StatusUnauthorized)
+	case errBadRequest:
+		w.WriteHeader(http.StatusBadRequest)
 	case errForbidden:
 		w.WriteHeader(http.StatusForbidden)
 	default:

@@ -11,7 +11,7 @@ import (
 	"store/pkg/delivery/app"
 )
 
-func NewOrderPositionQueryService(client mysql.Client) app.OrderDeliveryQueryService {
+func NewOrderDeliveryQueryService(client mysql.Client) app.OrderDeliveryQueryService {
 	return &orderDeliveryQueryService{client: client}
 }
 

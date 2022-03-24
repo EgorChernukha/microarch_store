@@ -102,7 +102,9 @@ func createServer(connector commonmysql.Connector, streamsEnvironment streams.En
 		log.Fatal(err)
 	}
 
-	server := transport.NewServer(router, tokenParser)
+	orderDeliveryQueryService := mysql.NewOrderDeliveryQueryService(connector.Client())
+
+	server := transport.NewServer(router, tokenParser, trUnitFactory, orderDeliveryQueryService)
 	server.Start()
 
 	return &http.Server{

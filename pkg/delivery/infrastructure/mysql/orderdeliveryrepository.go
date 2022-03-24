@@ -46,6 +46,21 @@ func (o *orderDeliveryRepository) Store(orderDelivery app.OrderDelivery) error {
 	return errors.WithStack(err)
 }
 
+func (o *orderDeliveryRepository) FindByID(id app.ID) (app.OrderDelivery, error) {
+	const sqlQuery = `SELECT id, order_id, user_id, status FROM order_delivery WHERE AND id=?`
+
+	var sqlOrderDelivery sqlxOrderDelivery
+
+	err := o.client.Get(&sqlOrderDelivery, sqlQuery, uuid.UUID(id).Bytes())
+	if err == sql.ErrNoRows {
+		return nil, errors.WithStack(app.ErrOrderDeliveryNotFound)
+	} else if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return sqlxOrderDeliveryToOrderDelivery(&sqlOrderDelivery), nil
+}
+
 func (o *orderDeliveryRepository) FindByOrderID(orderID app.OrderID) (app.OrderDelivery, error) {
 	const sqlQuery = `SELECT id, order_id, user_id, status FROM order_delivery WHERE AND order_id=?`
 

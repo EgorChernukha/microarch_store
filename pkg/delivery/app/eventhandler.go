@@ -59,6 +59,9 @@ func (handler *eventHandler) executeInTransaction(f func(RepositoryProvider) err
 }
 
 func handleOrderConfirmedEvent(provider RepositoryProvider, e orderConfirmedEvent) error {
-	// #TODO: implement me
-	return nil
+	service := NewOrderDeliveryService(provider.OrderDeliveryRepository())
+
+	_, err := service.AddOrderDelivery(e.orderID, e.userID)
+
+	return err
 }

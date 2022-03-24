@@ -5,6 +5,7 @@ import "errors"
 type OrderDeliveryRepository interface {
 	NewID() ID
 	Store(orderDelivery OrderDelivery) error
+	FindByID(id ID) (OrderDelivery, error)
 	FindByOrderID(orderID OrderID) (OrderDelivery, error)
 	FindByUserID(userID UserID) ([]OrderDelivery, error)
 }
