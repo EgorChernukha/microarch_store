@@ -10,6 +10,7 @@ type UserID uuid.UUID
 
 const (
 	Created = iota
+	Confirmed
 	Sent
 	Received
 	Rejected
@@ -20,9 +21,10 @@ type OrderDelivery interface {
 	OrderID() OrderID
 	UserID() UserID
 	Status() int
-	MarkAsSent()
-	MarkAsReceived()
-	MarkAsRejected()
+	Confirm()
+	Sent()
+	Receive()
+	Reject()
 }
 
 func NewOrderDelivery(id ID, orderID OrderID, userID UserID, status int) OrderDelivery {
@@ -57,14 +59,18 @@ func (o *orderDelivery) Status() int {
 	return o.status
 }
 
-func (o *orderDelivery) MarkAsSent() {
+func (o *orderDelivery) Confirm() {
+	o.status = Confirmed
+}
+
+func (o *orderDelivery) Sent() {
 	o.status = Sent
 }
 
-func (o *orderDelivery) MarkAsReceived() {
+func (o *orderDelivery) Receive() {
 	o.status = Received
 }
 
-func (o *orderDelivery) MarkAsRejected() {
+func (o *orderDelivery) Reject() {
 	o.status = Rejected
 }

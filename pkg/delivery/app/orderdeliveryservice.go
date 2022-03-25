@@ -4,9 +4,10 @@ import uuid "github.com/satori/go.uuid"
 
 type OrderDeliveryService interface {
 	AddOrderDelivery(orderID uuid.UUID, userID uuid.UUID) (uuid.UUID, error)
-	MarkOrderDeliveryAsSent(orderDeliveryID uuid.UUID) error
-	MarkOrderDeliveryAsReceived(orderDeliveryID uuid.UUID) error
-	MarkOrderDeliveryAsRejected(orderDeliveryID uuid.UUID) error
+	ConfirmOrderDelivery(orderDeliveryID uuid.UUID) error
+	SentOrderDelivery(orderDeliveryID uuid.UUID) error
+	ReceiveOrderDelivery(orderDeliveryID uuid.UUID) error
+	RejectOrderDelivery(orderDeliveryID uuid.UUID) error
 }
 
 func NewOrderDeliveryService(orderDeliveryRepository OrderDeliveryRepository) OrderDeliveryService {
@@ -27,35 +28,46 @@ func (o *orderDeliveryService) AddOrderDelivery(orderID uuid.UUID, userID uuid.U
 	return uuid.UUID(id), err
 }
 
-func (o *orderDeliveryService) MarkOrderDeliveryAsSent(orderDeliveryID uuid.UUID) error {
+func (o *orderDeliveryService) ConfirmOrderDelivery(orderDeliveryID uuid.UUID) error {
 	orderDelivery, err := o.orderDeliveryRepository.FindByID(ID(orderDeliveryID))
 	if err != nil {
 		return err
 	}
 
-	orderDelivery.MarkAsSent()
+	orderDelivery.Confirm()
 
 	return nil
 }
 
-func (o *orderDeliveryService) MarkOrderDeliveryAsReceived(orderDeliveryID uuid.UUID) error {
+func (o *orderDeliveryService) SentOrderDelivery(orderDeliveryID uuid.UUID) error {
 	orderDelivery, err := o.orderDeliveryRepository.FindByID(ID(orderDeliveryID))
 	if err != nil {
 		return err
 	}
 
-	orderDelivery.MarkAsReceived()
+	orderDelivery.Sent()
 
 	return nil
 }
 
-func (o *orderDeliveryService) MarkOrderDeliveryAsRejected(orderDeliveryID uuid.UUID) error {
+func (o *orderDeliveryService) ReceiveOrderDelivery(orderDeliveryID uuid.UUID) error {
 	orderDelivery, err := o.orderDeliveryRepository.FindByID(ID(orderDeliveryID))
 	if err != nil {
 		return err
 	}
 
-	orderDelivery.MarkAsRejected()
+	orderDelivery.Receive()
+
+	return nil
+}
+
+func (o *orderDeliveryService) RejectOrderDelivery(orderDeliveryID uuid.UUID) error {
+	orderDelivery, err := o.orderDeliveryRepository.FindByID(ID(orderDeliveryID))
+	if err != nil {
+		return err
+	}
+
+	orderDelivery.Reject()
 
 	return nil
 }

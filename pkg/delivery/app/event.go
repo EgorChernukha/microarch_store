@@ -18,11 +18,24 @@ func NewOrderConfirmedEvent(userID uuid.UUID, orderID uuid.UUID) UserEvent {
 	return orderConfirmedEvent{userID: userID, orderID: orderID}
 }
 
+func NewOrderRejectedEvent(userID uuid.UUID, orderID uuid.UUID) UserEvent {
+	return orderRejectedEvent{userID: userID, orderID: orderID}
+}
+
 type orderConfirmedEvent struct {
 	userID  uuid.UUID
 	orderID uuid.UUID
 }
 
 func (e orderConfirmedEvent) UserID() uuid.UUID {
+	return e.userID
+}
+
+type orderRejectedEvent struct {
+	userID  uuid.UUID
+	orderID uuid.UUID
+}
+
+func (e orderRejectedEvent) UserID() uuid.UUID {
 	return e.userID
 }

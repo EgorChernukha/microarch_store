@@ -1,6 +1,7 @@
 package app
 
 import (
+	uuid "github.com/satori/go.uuid"
 	"store/pkg/common/app/integrationevent"
 )
 
@@ -39,6 +40,8 @@ func (handler *eventHandler) Handle(event integrationevent.EventData) error {
 		switch e := parsedEvent.(type) {
 		case orderConfirmedEvent:
 			return handleOrderConfirmedEvent(provider, e)
+		case orderRejectedEvent:
+			return handleOrderRejectedEvent(provider, e)
 		default:
 			return nil
 		}
@@ -59,9 +62,25 @@ func (handler *eventHandler) executeInTransaction(f func(RepositoryProvider) err
 }
 
 func handleOrderConfirmedEvent(provider RepositoryProvider, e orderConfirmedEvent) error {
-	service := NewOrderDeliveryService(provider.OrderDeliveryRepository())
+	repository := provider.OrderDeliveryRepository()
+	orderDelivery, err := repository.FindByOrderID(OrderID(e.orderID))
+	if err != nil {
+		return err
+	}
 
-	_, err := service.AddOrderDelivery(e.orderID, e.userID)
+	service := NewOrderDeliveryService(repository)
 
-	return err
+	return service.ConfirmOrderDelivery(uuid.UUID(orderDelivery.ID()))
+}
+
+func handleOrderRejectedEvent(provider RepositoryProvider, e orderRejectedEvent) error {
+	repository := provider.OrderDeliveryRepository()
+	orderDelivery, err := repository.FindByOrderID(OrderID(e.orderID))
+	if err != nil {
+		return err
+	}
+
+	service := NewOrderDeliveryService(repository)
+
+	return service.RejectOrderDelivery(uuid.UUID(orderDelivery.ID()))
 }

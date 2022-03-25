@@ -2,6 +2,7 @@ package transport
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -16,7 +17,8 @@ import (
 const PathPrefix = "/api/v1/"
 
 const (
-	specOrderDeliveryEndpoint = PathPrefix + "order/{id}"
+	orderDeliveryEndpoint     = PathPrefix + "order"
+	specOrderDeliveryEndpoint = orderDeliveryEndpoint + "/{id}"
 )
 
 const (
@@ -29,6 +31,15 @@ const authTokenHeader = "X-Auth-Token"
 var errUnauthorized = errors.New("not authorized")
 var errForbidden = errors.New("access denied")
 var errBadRequest = errors.New("bad request")
+
+type createOrderDeliveryRequest struct {
+	OrderID string `json:"order_id"`
+	UserID  string `json:"user_id"`
+}
+
+type createOrderDeliveryResponse struct {
+	ID string `json:"id"`
+}
 
 type Server interface {
 	Start()
@@ -56,6 +67,7 @@ type errorInfo struct {
 }
 
 func (s *server) Start() {
+	s.router.Methods(http.MethodGet).Path(orderDeliveryEndpoint).Handler(s.makeHandlerFunc(s.createOrderDeliveryEndpoint))
 	s.router.Methods(http.MethodGet).Path(specOrderDeliveryEndpoint).Handler(s.makeHandlerFunc(s.getOrderDeliveryEndpoint))
 }
 
@@ -70,6 +82,37 @@ func (s *server) executeInTransaction(f func(provider app.RepositoryProvider) er
 	}()
 	err = f(trUnit)
 	return err
+}
+
+func (s *server) createOrderDeliveryEndpoint(w http.ResponseWriter, r *http.Request, orderDeliveryService app.OrderDeliveryService) error {
+	var requestData createOrderDeliveryRequest
+	bytesBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(bytesBody, &requestData); err != nil {
+		return err
+	}
+
+	orderID, err := uuid.FromString(requestData.OrderID)
+	if err != nil {
+		return err
+	}
+
+	userID, err := uuid.FromString(requestData.UserID)
+	if err != nil {
+		return err
+	}
+
+	orderDeliveryID, err := orderDeliveryService.AddOrderDelivery(orderID, userID)
+	if err != nil {
+		return err
+	}
+
+	response := createOrderDeliveryResponse{ID: orderDeliveryID.String()}
+
+	writeResponse(w, response)
+	return nil
 }
 
 func (s *server) getOrderDeliveryEndpoint(w http.ResponseWriter, r *http.Request, _ app.OrderDeliveryService) error {
