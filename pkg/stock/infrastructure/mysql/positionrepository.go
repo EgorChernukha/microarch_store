@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"database/sql"
-
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 

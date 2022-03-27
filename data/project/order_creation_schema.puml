@@ -1,0 +1,85 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor User
+participant "Order service"
+queue "Message broker"
+participant "Billing service"
+participant "Stock service"
+participant "Delivery service"
+participant "Notification service"
+
+title Создание заказа:
+User -> "Order service": '/order/api/v1/create'
+Activate "Order service"
+note left
+POST <b>/order</b>/api/v1/create
+POST <b>/order</b>/api/v1/cancel
+GET <b>/order</b>/api/v1/status
+GET <b>/order</b>/api/v1/list
+end note
+
+"Order service" -> "Billing service": '/api/v1/withdrawMoney'
+Activate "Billing service"
+note over "Billing service"
+Зарезервировать деньги
+end note
+"Billing service" --> "Order service": Response
+Deactivate "Billing service"
+
+"Order service" -> "Stock service": '/api/v1/position/reserve'
+Activate "Stock service"
+note over "Stock service"
+Зарезервировать позиции заказа
+end note
+"Stock service" --> "Order service": Response
+Deactivate "Stock service"
+
+"Order service" -> "Delivery service": '/api/v1/order_delivery'
+Activate "Delivery service"
+note over "Delivery service"
+Зарезервировать курьера
+end note
+"Delivery service" --> "Order service": Response
+Deactivate "Delivery service"
+
+"Order service" -> "Message broker": Оформление завершено\отклонено
+Activate "Message broker"
+"Order service" --> User: Response
+Deactivate "Order service"
+
+"Message broker" --> "Billing service":
+Activate "Billing service"
+note over "Billing service"
+Снять\разморозить деньги
+end note
+"Billing service" --> "Message broker": Response
+Deactivate "Billing service"
+
+"Message broker" --> "Stock service":
+Activate "Stock service"
+note over "Stock service"
+Подтвердить заказ\вернуть товар в складской резерв
+end note
+"Stock service" --> "Message broker": Response
+Deactivate "Stock service"
+
+"Message broker" --> "Delivery service":
+Activate "Delivery service"
+note over "Delivery service"
+Подтвердить\отклонить отправку
+end note
+"Delivery service" --> "Message broker": Response
+Deactivate "Delivery service"
+
+"Message broker" --> "Notification service":
+Activate "Notification service"
+note over "Notification service"
+Отправить уведомление
+end note
+"Notification service" --> "Message broker": Response
+Deactivate "Notification service"
+
+Deactivate "Message broker"
+
+@enduml

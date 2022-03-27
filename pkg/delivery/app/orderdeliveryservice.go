@@ -35,8 +35,7 @@ func (o *orderDeliveryService) ConfirmOrderDelivery(orderDeliveryID uuid.UUID) e
 	}
 
 	orderDelivery.Confirm()
-
-	return nil
+	return o.orderDeliveryRepository.Store(orderDelivery)
 }
 
 func (o *orderDeliveryService) SentOrderDelivery(orderDeliveryID uuid.UUID) error {
@@ -46,8 +45,7 @@ func (o *orderDeliveryService) SentOrderDelivery(orderDeliveryID uuid.UUID) erro
 	}
 
 	orderDelivery.Sent()
-
-	return nil
+	return o.orderDeliveryRepository.Store(orderDelivery)
 }
 
 func (o *orderDeliveryService) ReceiveOrderDelivery(orderDeliveryID uuid.UUID) error {
@@ -57,8 +55,7 @@ func (o *orderDeliveryService) ReceiveOrderDelivery(orderDeliveryID uuid.UUID) e
 	}
 
 	orderDelivery.Receive()
-
-	return nil
+	return o.orderDeliveryRepository.Store(orderDelivery)
 }
 
 func (o *orderDeliveryService) RejectOrderDelivery(orderDeliveryID uuid.UUID) error {
@@ -68,6 +65,5 @@ func (o *orderDeliveryService) RejectOrderDelivery(orderDeliveryID uuid.UUID) er
 	}
 
 	orderDelivery.Reject()
-
-	return nil
+	return o.orderDeliveryRepository.Store(orderDelivery)
 }

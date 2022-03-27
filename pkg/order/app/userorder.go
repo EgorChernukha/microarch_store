@@ -6,6 +6,7 @@ import (
 
 type ID uuid.UUID
 type UserID uuid.UUID
+type PositionID uuid.UUID
 type OrderID uuid.UUID
 
 type UserOrder interface {

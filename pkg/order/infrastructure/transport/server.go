@@ -24,10 +24,11 @@ const (
 )
 
 const (
-	errorCodeUnknown                    = 0
-	errorCodeOrderNotFound              = 1
-	errorCodePaymentFailed              = 2
-	errorCodeReserveOrderDeliveryFailed = 3
+	errorCodeUnknown                     = 0
+	errorCodeOrderNotFound               = 1
+	errorCodePaymentFailed               = 2
+	errorCodeReserveOrderDeliveryFailed  = 3
+	errorCodeReserveOrderPositionsFailed = 4
 )
 
 var errUnauthorized = errors.New("not authorized")
@@ -59,8 +60,10 @@ type errorInfo struct {
 	Message string `json:"message"`
 }
 
-type createOrderInfo struct {
-	Price float64 `json:"price"`
+type createOrderRequest struct {
+	Price      float64 `json:"price"`
+	PositionID string  `json:"positionID"`
+	Count      int     `json:"count"`
 }
 
 type createOrderResponse struct {
@@ -107,12 +110,12 @@ func (s *server) createOrderEndpoint(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	var info createOrderInfo
+	var requestData createOrderRequest
 	bytesBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(bytesBody, &info); err != nil {
+	if err = json.Unmarshal(bytesBody, &requestData); err != nil {
 		return err
 	}
 
@@ -121,7 +124,12 @@ func (s *server) createOrderEndpoint(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	orderID, err := s.userOrderService.Create(app.UserID(userID), info.Price)
+	positionID, err := uuid.FromString(requestData.PositionID)
+	if err != nil {
+		return err
+	}
+
+	orderID, err := s.userOrderService.Create(app.UserID(userID), requestData.Price, app.PositionID(positionID), requestData.Count)
 	if err != nil {
 		return err
 	}
@@ -201,6 +209,9 @@ func writeErrorResponse(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusBadRequest)
 	case app.ErrReserveOrderDeliveryFailed:
 		info.Code = errorCodeReserveOrderDeliveryFailed
+		w.WriteHeader(http.StatusBadRequest)
+	case app.ErrReserveOrderPositionsFailed:
+		info.Code = errorCodeReserveOrderPositionsFailed
 		w.WriteHeader(http.StatusBadRequest)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)

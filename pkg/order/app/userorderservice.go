@@ -10,9 +10,10 @@ import (
 
 var ErrPaymentFailed = errors.New("order payment failed")
 var ErrReserveOrderDeliveryFailed = errors.New("reserve order delivery failed")
+var ErrReserveOrderPositionsFailed = errors.New("reserve order positions failed")
 
 type UserOrderService interface {
-	Create(userID UserID, price float64) (OrderID, error)
+	Create(userID UserID, price float64, positionID PositionID, count int) (OrderID, error)
 }
 
 func NewUserOrderService(
@@ -42,7 +43,7 @@ type userOrderService struct {
 	stockClient             StockClient
 }
 
-func (s *userOrderService) Create(userID UserID, price float64) (OrderID, error) {
+func (s *userOrderService) Create(userID UserID, price float64, positionID PositionID, count int) (OrderID, error) {
 	id := ID(uuid.NewV1())
 	orderID := OrderID(uuid.NewV1())
 
@@ -53,14 +54,25 @@ func (s *userOrderService) Create(userID UserID, price float64) (OrderID, error)
 	}
 
 	reserveDeliverySucceeded, err := s.deliveryClient.ReserveDelivery(uuid.UUID(userID), uuid.UUID(orderID))
+	if err != nil {
+		return orderID, err
+	}
 
+	positions := []ReserveOrderPositionInputItem{
+		{
+			PositionID: uuid.UUID(positionID),
+			OrderID:    uuid.UUID(orderID),
+			Count:      count,
+		},
+	}
+	reservePositionsSucceeded, err := s.stockClient.ReserveOrderPositions(ReserveOrderPositionInput{Positions: positions})
 	if err != nil {
 		return orderID, err
 	}
 
 	err = s.executeInTransaction(func(provider RepositoryProvider) error {
 		var event integrationevent.EventData
-		if paymentSucceeded && reserveDeliverySucceeded {
+		if paymentSucceeded && reserveDeliverySucceeded && reservePositionsSucceeded {
 			err2 := provider.UserOrderRepository().Store(order)
 			if err2 != nil {
 				return err2
@@ -90,6 +102,10 @@ func (s *userOrderService) Create(userID UserID, price float64) (OrderID, error)
 
 	if !reserveDeliverySucceeded {
 		return orderID, errors.WithStack(ErrReserveOrderDeliveryFailed)
+	}
+
+	if !reservePositionsSucceeded {
+		return orderID, errors.WithStack(ErrReserveOrderPositionsFailed)
 	}
 
 	return orderID, err
