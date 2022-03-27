@@ -121,12 +121,12 @@ func (s *server) getOrderDeliveryEndpoint(w http.ResponseWriter, r *http.Request
 		return errBadRequest
 	}
 
-	positionData, err := s.orderDeliveryQueryService.FindByOrderID(orderID)
+	orderDeliveryData, err := s.orderDeliveryQueryService.FindByOrderID(orderID)
 	if err != nil {
 		return err
 	}
 
-	writeResponse(w, positionData)
+	writeResponse(w, orderDeliveryData)
 	return nil
 }
 

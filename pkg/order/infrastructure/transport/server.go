@@ -34,10 +34,6 @@ var errUnauthorized = errors.New("not authorized")
 var errForbidden = errors.New("access denied")
 var errBadRequest = errors.New("bad request")
 
-type userOrderData struct {
-	Status int `json:"status"`
-}
-
 type Server interface {
 	Start()
 }
