@@ -30,6 +30,7 @@ type config struct {
 	MigrationsDir        string `envconfig:"migrations_dir"`
 	BillingServiceHost   string `envconfig:"billing_host" default:"http://billing-app:8000"`
 	DeliveryServiceHost  string `envconfig:"delivery_host" default:"http://delivery-app:8000"`
+	StockServiceHost     string `envconfig:"stock_host" default:"http://stock-app:8000"`
 }
 
 func (c *config) dsn() mysql.DSN {

@@ -15,13 +15,14 @@ import (
 )
 
 const PathPrefix = "/api/v1/"
+const PathPrefixInternal = "/internal/api/v1/"
 
 const (
 	listPositionsEndpoint   = PathPrefix + "position/list"
 	positionEndpoint        = PathPrefix + "position"
 	specPositionEndpoint    = positionEndpoint + "/{id}"
 	addPositionEndpoint     = positionEndpoint + "/add"
-	reservePositionEndpoint = positionEndpoint + "/reserve"
+	reservePositionEndpoint = PathPrefixInternal + "position/reserve"
 	topUpPositionEndpoint   = specPositionEndpoint + "/topup"
 )
 
@@ -56,7 +57,7 @@ type reservePositionRequestPosition struct {
 }
 
 type reservePositionRequest struct {
-	positions []reservePositionRequestPosition `json:"positions"`
+	Positions []reservePositionRequestPosition `json:"positions"`
 }
 
 type Server interface {
@@ -222,7 +223,7 @@ func (s *server) reserveStockPositionEndpoint(w http.ResponseWriter, r *http.Req
 	}
 
 	var positionsInput []app.ReservePositionInputItem
-	for _, requestItem := range requestData.positions {
+	for _, requestItem := range requestData.Positions {
 		orderID, err := uuid.FromString(requestItem.OrderID)
 		if err != nil {
 			return err

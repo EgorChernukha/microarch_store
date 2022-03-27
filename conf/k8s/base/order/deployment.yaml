@@ -67,6 +67,8 @@ spec:
               value: "http://billing:8000"
             - name: ORDER_DELIVERY_HOST
               value: "http://delivery:8000"
+            - name: STOCK_HOST
+              value: "http://stock:8000"
           ports:
             - name: http
               containerPort: 8080

@@ -15,13 +15,21 @@ type UserOrderService interface {
 	Create(userID UserID, price float64) (OrderID, error)
 }
 
-func NewUserOrderService(trUnitFactory TransactionalUnitFactory, userOrderReadRepository UserOrderRepository, eventSender storedevent.Sender, billingClient BillingClient, deliveryClient DeliveryClient) UserOrderService {
+func NewUserOrderService(
+	trUnitFactory TransactionalUnitFactory,
+	userOrderReadRepository UserOrderRepository,
+	eventSender storedevent.Sender,
+	billingClient BillingClient,
+	deliveryClient DeliveryClient,
+	stockClient StockClient,
+) UserOrderService {
 	return &userOrderService{
 		trUnitFactory:           trUnitFactory,
 		userOrderReadRepository: userOrderReadRepository,
 		eventSender:             eventSender,
 		billingClient:           billingClient,
 		deliveryClient:          deliveryClient,
+		stockClient:             stockClient,
 	}
 }
 
@@ -31,6 +39,7 @@ type userOrderService struct {
 	eventSender             storedevent.Sender
 	billingClient           BillingClient
 	deliveryClient          DeliveryClient
+	stockClient             StockClient
 }
 
 func (s *userOrderService) Create(userID UserID, price float64) (OrderID, error) {
