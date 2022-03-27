@@ -22,7 +22,7 @@ type billingClient struct {
 
 func (c *billingClient) ProcessOrderPayment(userID uuid.UUID, price float64) (succeeded bool, err error) {
 	request := processPaymentRequest{
-		UserID: uuid.UUID(userID).String(),
+		UserID: userID.String(),
 		Amount: price,
 	}
 	err = c.httpClient.MakeJSONRequest(request, nil, http.MethodPost, processPaymentURL)

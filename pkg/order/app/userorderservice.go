@@ -9,17 +9,19 @@ import (
 )
 
 var ErrPaymentFailed = errors.New("order payment failed")
+var ErrReserveOrderDeliveryFailed = errors.New("reserve order delivery failed")
 
 type UserOrderService interface {
 	Create(userID UserID, price float64) (OrderID, error)
 }
 
-func NewUserOrderService(trUnitFactory TransactionalUnitFactory, userOrderReadRepository UserOrderRepository, eventSender storedevent.Sender, billingClient BillingClient) UserOrderService {
+func NewUserOrderService(trUnitFactory TransactionalUnitFactory, userOrderReadRepository UserOrderRepository, eventSender storedevent.Sender, billingClient BillingClient, deliveryClient DeliveryClient) UserOrderService {
 	return &userOrderService{
 		trUnitFactory:           trUnitFactory,
 		userOrderReadRepository: userOrderReadRepository,
 		eventSender:             eventSender,
 		billingClient:           billingClient,
+		deliveryClient:          deliveryClient,
 	}
 }
 
@@ -28,6 +30,7 @@ type userOrderService struct {
 	userOrderReadRepository UserOrderRepository
 	eventSender             storedevent.Sender
 	billingClient           BillingClient
+	deliveryClient          DeliveryClient
 }
 
 func (s *userOrderService) Create(userID UserID, price float64) (OrderID, error) {
@@ -40,9 +43,15 @@ func (s *userOrderService) Create(userID UserID, price float64) (OrderID, error)
 		return orderID, err
 	}
 
+	reserveDeliverySucceeded, err := s.deliveryClient.ReserveDelivery(uuid.UUID(userID), uuid.UUID(orderID))
+
+	if err != nil {
+		return orderID, err
+	}
+
 	err = s.executeInTransaction(func(provider RepositoryProvider) error {
 		var event integrationevent.EventData
-		if paymentSucceeded {
+		if paymentSucceeded && reserveDeliverySucceeded {
 			err2 := provider.UserOrderRepository().Store(order)
 			if err2 != nil {
 				return err2
@@ -68,6 +77,10 @@ func (s *userOrderService) Create(userID UserID, price float64) (OrderID, error)
 
 	if !paymentSucceeded {
 		return orderID, errors.WithStack(ErrPaymentFailed)
+	}
+
+	if !reserveDeliverySucceeded {
+		return orderID, errors.WithStack(ErrReserveOrderDeliveryFailed)
 	}
 
 	return orderID, err

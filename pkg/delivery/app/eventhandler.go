@@ -1,7 +1,9 @@
 package app
 
 import (
+	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
+
 	"store/pkg/common/app/integrationevent"
 )
 
@@ -76,7 +78,7 @@ func handleOrderConfirmedEvent(provider RepositoryProvider, e orderConfirmedEven
 func handleOrderRejectedEvent(provider RepositoryProvider, e orderRejectedEvent) error {
 	repository := provider.OrderDeliveryRepository()
 	orderDelivery, err := repository.FindByOrderID(OrderID(e.orderID))
-	if err == ErrOrderDeliveryNotFound {
+	if errors.Cause(err) == ErrOrderDeliveryNotFound {
 		return nil
 	} else if err != nil {
 		return err

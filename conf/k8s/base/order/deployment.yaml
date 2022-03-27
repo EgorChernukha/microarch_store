@@ -65,6 +65,8 @@ spec:
                   key: ORDER_AMQP_PASSWORD
             - name: ORDER_BILLING_HOST
               value: "http://billing:8000"
+            - name: ORDER_DELIVERY_HOST
+              value: "http://delivery:8000"
           ports:
             - name: http
               containerPort: 8080

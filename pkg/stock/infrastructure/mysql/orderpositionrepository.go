@@ -49,7 +49,7 @@ func (o *orderPositionRepository) Store(orderPosition app.OrderPosition) error {
 }
 
 func (o *orderPositionRepository) FindByOrderID(orderID app.OrderID) ([]app.OrderPosition, error) {
-	const sqlQuery = `SELECT id, order_id, position_id, count, status FROM order_position WHERE AND order_id=?`
+	const sqlQuery = `SELECT id, order_id, position_id, count, status FROM order_position WHERE order_id=?`
 
 	var orderPositions []*sqlxOrderPosition
 	err := o.client.Select(&orderPositions, sqlQuery, uuid.UUID(orderID).Bytes())
@@ -65,7 +65,7 @@ func (o *orderPositionRepository) FindByOrderID(orderID app.OrderID) ([]app.Orde
 }
 
 func (o *orderPositionRepository) FindByPositionID(positionID app.PositionID) ([]app.OrderPosition, error) {
-	const sqlQuery = `SELECT id, order_id, position_id, count, status FROM order_position WHERE AND position_id=?`
+	const sqlQuery = `SELECT id, order_id, position_id, count, status FROM order_position WHERE position_id=?`
 
 	var orderPositions []*sqlxOrderPosition
 	err := o.client.Select(&orderPositions, sqlQuery, uuid.UUID(positionID).Bytes())

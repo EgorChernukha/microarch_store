@@ -24,9 +24,10 @@ const (
 )
 
 const (
-	errorCodeUnknown       = 0
-	errorCodeOrderNotFound = 1
-	errorCodePaymentFailed = 2
+	errorCodeUnknown                    = 0
+	errorCodeOrderNotFound              = 1
+	errorCodePaymentFailed              = 2
+	errorCodeReserveOrderDeliveryFailed = 3
 )
 
 var errUnauthorized = errors.New("not authorized")
@@ -201,6 +202,9 @@ func writeErrorResponse(w http.ResponseWriter, err error) {
 		w.WriteHeader(http.StatusForbidden)
 	case app.ErrPaymentFailed:
 		info.Code = errorCodePaymentFailed
+		w.WriteHeader(http.StatusBadRequest)
+	case app.ErrReserveOrderDeliveryFailed:
+		info.Code = errorCodeReserveOrderDeliveryFailed
 		w.WriteHeader(http.StatusBadRequest)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)

@@ -47,7 +47,7 @@ func (o *orderDeliveryRepository) Store(orderDelivery app.OrderDelivery) error {
 }
 
 func (o *orderDeliveryRepository) FindByID(id app.ID) (app.OrderDelivery, error) {
-	const sqlQuery = `SELECT id, order_id, user_id, status FROM order_delivery WHERE AND id=?`
+	const sqlQuery = `SELECT id, order_id, user_id, status FROM order_delivery WHERE id=?`
 
 	var sqlOrderDelivery sqlxOrderDelivery
 
@@ -62,7 +62,7 @@ func (o *orderDeliveryRepository) FindByID(id app.ID) (app.OrderDelivery, error)
 }
 
 func (o *orderDeliveryRepository) FindByOrderID(orderID app.OrderID) (app.OrderDelivery, error) {
-	const sqlQuery = `SELECT id, order_id, user_id, status FROM order_delivery WHERE AND order_id=?`
+	const sqlQuery = `SELECT id, order_id, user_id, status FROM order_delivery WHERE order_id=?`
 
 	var sqlOrderDelivery sqlxOrderDelivery
 
@@ -77,7 +77,7 @@ func (o *orderDeliveryRepository) FindByOrderID(orderID app.OrderID) (app.OrderD
 }
 
 func (o *orderDeliveryRepository) FindByUserID(userID app.UserID) ([]app.OrderDelivery, error) {
-	const sqlQuery = `SELECT id, order_id, user_id, status FROM order_delivery WHERE AND user_id=?`
+	const sqlQuery = `SELECT id, order_id, user_id, status FROM order_delivery WHERE user_id=?`
 
 	var sqlOrderDeliveries []*sqlxOrderDelivery
 	err := o.client.Select(&sqlOrderDeliveries, sqlQuery, uuid.UUID(userID).Bytes())

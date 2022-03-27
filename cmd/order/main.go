@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"store/pkg/order/infrastructure/delivery"
 	"syscall"
 	"time"
 
@@ -102,8 +103,9 @@ func createServer(ctx context.Context, connector commonmysql.Connector, streamsE
 	}
 	trUnitFactory := mysql.NewTransactionalUnitFactory(connector.Client())
 	billingClient := billing.NewClient(http.Client{}, cnf.BillingServiceHost)
+	deliveryClient := delivery.NewClient(http.Client{}, cnf.DeliveryServiceHost)
 	userOrderRepository := mysql.NewUserOrderRepository(connector.Client())
-	userOrderService := app.NewUserOrderService(trUnitFactory, userOrderRepository, eventStore, billingClient)
+	userOrderService := app.NewUserOrderService(trUnitFactory, userOrderRepository, eventStore, billingClient, deliveryClient)
 
 	userOrderQueryService := mysql.NewUserOrderQueryService(connector.Client())
 

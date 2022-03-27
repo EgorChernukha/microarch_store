@@ -1,7 +1,8 @@
-make && docker build -t echernukha/stock -f ./Stock.Dockerfile . && docker push echernukha/stock
-make && docker build -t echernukha/delivery -f ./Delivery.Dockerfile . && docker push echernukha/delivery
-make && docker build -t echernukha/billing -f ./Billing.Dockerfile . && docker push echernukha/billing
-make && docker build -t echernukha/notification -f ./Notification.Dockerfile . && docker push echernukha/notification
-make && docker build -t echernukha/order -f ./Order.Dockerfile . && docker push echernukha/order
-make && docker build -t echernukha/user -f ./User.Dockerfile . && docker push echernukha/user
-make && docker build -t echernukha/auth -f ./Auth.Dockerfile . && docker push echernukha/auth
+make
+docker build -t echernukha/stock -f ./Stock.Dockerfile . && docker push echernukha/stock
+docker build -t echernukha/delivery -f ./Delivery.Dockerfile . && docker push echernukha/delivery
+docker build -t echernukha/billing -f ./Billing.Dockerfile . && docker push echernukha/billing
+docker build -t echernukha/notification -f ./Notification.Dockerfile . && docker push echernukha/notification
+docker build -t echernukha/order -f ./Order.Dockerfile . && docker push echernukha/order
+docker build -t echernukha/user -f ./User.Dockerfile . && docker push echernukha/user
+docker build -t echernukha/auth -f ./Auth.Dockerfile . && docker push echernukha/auth

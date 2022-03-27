@@ -15,10 +15,11 @@ import (
 )
 
 const PathPrefix = "/api/v1/"
+const PathPrefixInternal = "/internal/api/v1/"
 
 const (
-	orderDeliveryEndpoint     = PathPrefix + "order"
-	specOrderDeliveryEndpoint = orderDeliveryEndpoint + "/{id}"
+	orderDeliveryEndpoint     = PathPrefixInternal + "order_delivery"
+	specOrderDeliveryEndpoint = PathPrefix + "order_delivery/{id}"
 )
 
 const (
@@ -33,8 +34,8 @@ var errForbidden = errors.New("access denied")
 var errBadRequest = errors.New("bad request")
 
 type createOrderDeliveryRequest struct {
-	OrderID string `json:"order_id"`
-	UserID  string `json:"user_id"`
+	OrderID string `json:"orderID"`
+	UserID  string `json:"userID"`
 }
 
 type createOrderDeliveryResponse struct {
@@ -67,7 +68,7 @@ type errorInfo struct {
 }
 
 func (s *server) Start() {
-	s.router.Methods(http.MethodGet).Path(orderDeliveryEndpoint).Handler(s.makeHandlerFunc(s.createOrderDeliveryEndpoint))
+	s.router.Methods(http.MethodPost).Path(orderDeliveryEndpoint).Handler(s.makeHandlerFunc(s.createOrderDeliveryEndpoint))
 	s.router.Methods(http.MethodGet).Path(specOrderDeliveryEndpoint).Handler(s.makeHandlerFunc(s.getOrderDeliveryEndpoint))
 }
 
@@ -98,20 +99,16 @@ func (s *server) createOrderDeliveryEndpoint(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		return err
 	}
-
 	userID, err := uuid.FromString(requestData.UserID)
 	if err != nil {
 		return err
 	}
-
-	orderDeliveryID, err := orderDeliveryService.AddOrderDelivery(orderID, userID)
+	_, err = orderDeliveryService.AddOrderDelivery(orderID, userID)
 	if err != nil {
 		return err
 	}
 
-	response := createOrderDeliveryResponse{ID: orderDeliveryID.String()}
-
-	writeResponse(w, response)
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
 
