@@ -76,7 +76,9 @@ func handleOrderConfirmedEvent(provider RepositoryProvider, e orderConfirmedEven
 func handleOrderRejectedEvent(provider RepositoryProvider, e orderRejectedEvent) error {
 	repository := provider.OrderDeliveryRepository()
 	orderDelivery, err := repository.FindByOrderID(OrderID(e.orderID))
-	if err != nil {
+	if err == ErrOrderDeliveryNotFound {
+		return nil
+	} else if err != nil {
 		return err
 	}
 
